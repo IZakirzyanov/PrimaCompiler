@@ -1,4 +1,4 @@
-grammar MyLang;
+grammar Prima;
 
 program
    	: (globalDeclaration | functionDeclaration)+
