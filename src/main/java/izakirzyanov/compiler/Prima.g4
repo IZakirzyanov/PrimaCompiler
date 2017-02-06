@@ -1,10 +1,10 @@
 grammar Prima;
 
 program
-   	: (globalDeclaration | functionDeclaration)+
+   	: (globalVarDeclaration | functionDeclaration)+
    	;
 
-globalDeclaration
+globalVarDeclaration
     : varDeclarationStatement
     ;
 
@@ -13,7 +13,7 @@ functionDeclaration
 	;
 
 functionSignature
-   	: Identifier '(' functionArguments? ')' ':' type
+   	: name=Identifier '(' functionArguments? ')' ':' type
 	;
 
 functionArguments
@@ -21,7 +21,7 @@ functionArguments
    	;
 
 functionArg
-   	: Identifier ':' nonVoidType
+   	: name=Identifier ':' nonVoidType
    	;
 
 block
@@ -39,7 +39,6 @@ statement
     | varDeclarationStatement
     | assignmentStatement
     | ifStatement
-    | ifElseStatement
     | forStatement
     | whileStatement
     | readStatement
@@ -53,19 +52,15 @@ assignmentStatement
     ;
 
 assignment
-    : Identifier assignmentOP expr
+    : name=Identifier op=('='|'+='|'-='|'*='|'/='|'%='|'&='|'|=') expr
     ;
 
 ifStatement
-    : 'if' '(' expr ')' block
-    ;
-
-ifElseStatement
-    : 'if' '(' expr ')' thenBlock=block 'else' elseBlock=block
+    : 'if' '(' condition=expr ')' thenBlock=block ('else' elseBlock=block)?
     ;
 
 forStatement
-    : 'for' '(' forInit? ';' forStopCondition? ';' forIteration? ')' block
+    : 'for' '(' forInit? ';' forStopCondition? ';' forIteration? ')' body=block
     ;
 
 forInit
@@ -82,7 +77,7 @@ forIteration
     ;
 
 whileStatement
-    : 'while' '(' expr ')' block
+    : 'while' '(' condition=expr ')' body=block
     ;
 
 readStatement
@@ -94,7 +89,7 @@ readCall
     ;
 
 writeStatement
-    : name=('write'|'writeln') '(' expr ')' ';'
+    : (write='write'|writeln='writeln') '(' expr? ')' ';'
     ;
 
 returnStatement
@@ -106,7 +101,7 @@ varDeclarationStatement
     ;
 
 varDeclaration
-   	: Identifier ':' nonVoidType ('=' expr)?
+   	: name=Identifier ':' nonVoidType ('=' expr)?
    	;
 
 nopStatement
@@ -123,20 +118,20 @@ voidType
     ;
 
 expr
-   	: '(' expr ')'
-   	| intLiteral
-   	| boolLiteral
-   	| var
-   	| unaryIntOp expr
-   	| unaryBoolOp expr
-   	| <assoc=left> left=expr divModMultOp right=expr
-   	| <assoc=left> left=expr addSubOp right=expr
-   	| <assoc=left> left=expr compOp right=expr
-   	| <assoc=left> left=expr equalOp right=expr
-   	| <assoc=left> left=expr boolAndOp right=expr
-   	| <assoc=left> left=expr boolOrOp right=expr
-   	| readCall
-   	| functionCall
+   	: '(' expr ')' # eXPRParenthesis
+   	| intLiteral # eXPRLiteral
+   	| boolLiteral # eXPRLiteral
+   	| variableName # eXPRVarName
+   	| op=('+'|'-') expr # eXPRUnary
+   	| op='!' expr # eXPRUnary
+   	| <assoc=left> left=expr op=('/'|'%'|'*') right=expr # eXPRBinary
+   	| <assoc=left> left=expr op=('+'|'-') right=expr # eXPRBinary
+   	| <assoc=left> left=expr op=('<'|'>'|'<='|'>=') right=expr # eXPRBinary
+   	| <assoc=left> left=expr op=('=='|'!=') right=expr # eXPRBinary
+   	| <assoc=left> left=expr op='&&' right=expr # eXPRBinary
+   	| <assoc=left> left=expr op='||' right=expr # eXPRBinary
+   	| readCall # eXPRReadCall
+   	| functionCall # eXPRFunctionCall
     ;
 
 functionCallStatement
@@ -144,7 +139,7 @@ functionCallStatement
     ;
 
 functionCall
-    : Identifier '(' argumentList? ')'
+    : name=Identifier '(' argumentList? ')'
     ;
 
 argumentList
@@ -159,63 +154,22 @@ boolLiteral
     : B
     ;
 
-var
-    : Identifier
-    ;
-
-unaryIntOp
-    : '+'
-    | '-'
-    ;
-
-unaryBoolOp
-    : '!'
+variableName
+    : name=Identifier
     ;
 
 
-divModMultOp: '/'
-            | '%'
-            | '*'
-            ;
-
-addSubOp    : '+'
-            | '-'
-            ;
-
-compOp      : '<'
-            | '>'
-            | '<='
-            | '>='
-            ;
-
-equalOp     : '=='
-            | '!='
-            ;
-
-boolAndOp   : '&&'
-            ;
-
-boolOrOp    : '||'
-            ;
-
-assignmentOP: '='
-            | '+='
-            | '-='
-            | '*='
-            | '/='
-            | '%='
-            ;
-
-Identifier  : ID ;
 Nop         : 'nop' ;
 
-ID      : [a-zA-Z_][a-zA-Z0-9_]* ;
 B       : 'true'
         | 'false'
         ;
 Z       : '0'
         | [1-9][0-9]*
         ;
+
+Identifier  : ID ;
+ID      : [a-zA-Z_][a-zA-Z0-9_]* ;
 
 WS
     : [ \t\r\n\u000C]+ -> skip ;

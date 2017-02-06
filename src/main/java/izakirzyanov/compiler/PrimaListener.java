@@ -18,15 +18,15 @@ public interface PrimaListener extends ParseTreeListener {
 	 */
 	void exitProgram(PrimaParser.ProgramContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PrimaParser#globalDeclaration}.
+	 * Enter a parse tree produced by {@link PrimaParser#globalVarDeclaration}.
 	 * @param ctx the parse tree
 	 */
-	void enterGlobalDeclaration(PrimaParser.GlobalDeclarationContext ctx);
+	void enterGlobalVarDeclaration(PrimaParser.GlobalVarDeclarationContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PrimaParser#globalDeclaration}.
+	 * Exit a parse tree produced by {@link PrimaParser#globalVarDeclaration}.
 	 * @param ctx the parse tree
 	 */
-	void exitGlobalDeclaration(PrimaParser.GlobalDeclarationContext ctx);
+	void exitGlobalVarDeclaration(PrimaParser.GlobalVarDeclarationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PrimaParser#functionDeclaration}.
 	 * @param ctx the parse tree
@@ -127,16 +127,6 @@ public interface PrimaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitIfStatement(PrimaParser.IfStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#ifElseStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterIfElseStatement(PrimaParser.IfElseStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#ifElseStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitIfElseStatement(PrimaParser.IfElseStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PrimaParser#forStatement}.
 	 * @param ctx the parse tree
@@ -278,15 +268,89 @@ public interface PrimaListener extends ParseTreeListener {
 	 */
 	void exitVoidType(PrimaParser.VoidTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PrimaParser#expr}.
+	 * Enter a parse tree produced by the {@code eXPRBinary}
+	 * labeled alternative in {@link PrimaParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpr(PrimaParser.ExprContext ctx);
+	void enterEXPRBinary(PrimaParser.EXPRBinaryContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PrimaParser#expr}.
+	 * Exit a parse tree produced by the {@code eXPRBinary}
+	 * labeled alternative in {@link PrimaParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpr(PrimaParser.ExprContext ctx);
+	void exitEXPRBinary(PrimaParser.EXPRBinaryContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code eXPRUnary}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEXPRUnary(PrimaParser.EXPRUnaryContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code eXPRUnary}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEXPRUnary(PrimaParser.EXPRUnaryContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code eXPRReadCall}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEXPRReadCall(PrimaParser.EXPRReadCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code eXPRReadCall}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEXPRReadCall(PrimaParser.EXPRReadCallContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code eXPRFunctionCall}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEXPRFunctionCall(PrimaParser.EXPRFunctionCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code eXPRFunctionCall}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEXPRFunctionCall(PrimaParser.EXPRFunctionCallContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code eXPRVarName}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEXPRVarName(PrimaParser.EXPRVarNameContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code eXPRVarName}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEXPRVarName(PrimaParser.EXPRVarNameContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code eXPRParenthesis}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEXPRParenthesis(PrimaParser.EXPRParenthesisContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code eXPRParenthesis}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEXPRParenthesis(PrimaParser.EXPRParenthesisContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code eXPRLiteral}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEXPRLiteral(PrimaParser.EXPRLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code eXPRLiteral}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEXPRLiteral(PrimaParser.EXPRLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PrimaParser#functionCallStatement}.
 	 * @param ctx the parse tree
@@ -338,103 +402,13 @@ public interface PrimaListener extends ParseTreeListener {
 	 */
 	void exitBoolLiteral(PrimaParser.BoolLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PrimaParser#var}.
+	 * Enter a parse tree produced by {@link PrimaParser#variableName}.
 	 * @param ctx the parse tree
 	 */
-	void enterVar(PrimaParser.VarContext ctx);
+	void enterVariableName(PrimaParser.VariableNameContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PrimaParser#var}.
+	 * Exit a parse tree produced by {@link PrimaParser#variableName}.
 	 * @param ctx the parse tree
 	 */
-	void exitVar(PrimaParser.VarContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#unaryIntOp}.
-	 * @param ctx the parse tree
-	 */
-	void enterUnaryIntOp(PrimaParser.UnaryIntOpContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#unaryIntOp}.
-	 * @param ctx the parse tree
-	 */
-	void exitUnaryIntOp(PrimaParser.UnaryIntOpContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#unaryBoolOp}.
-	 * @param ctx the parse tree
-	 */
-	void enterUnaryBoolOp(PrimaParser.UnaryBoolOpContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#unaryBoolOp}.
-	 * @param ctx the parse tree
-	 */
-	void exitUnaryBoolOp(PrimaParser.UnaryBoolOpContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#divModMultOp}.
-	 * @param ctx the parse tree
-	 */
-	void enterDivModMultOp(PrimaParser.DivModMultOpContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#divModMultOp}.
-	 * @param ctx the parse tree
-	 */
-	void exitDivModMultOp(PrimaParser.DivModMultOpContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#addSubOp}.
-	 * @param ctx the parse tree
-	 */
-	void enterAddSubOp(PrimaParser.AddSubOpContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#addSubOp}.
-	 * @param ctx the parse tree
-	 */
-	void exitAddSubOp(PrimaParser.AddSubOpContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#compOp}.
-	 * @param ctx the parse tree
-	 */
-	void enterCompOp(PrimaParser.CompOpContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#compOp}.
-	 * @param ctx the parse tree
-	 */
-	void exitCompOp(PrimaParser.CompOpContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#equalOp}.
-	 * @param ctx the parse tree
-	 */
-	void enterEqualOp(PrimaParser.EqualOpContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#equalOp}.
-	 * @param ctx the parse tree
-	 */
-	void exitEqualOp(PrimaParser.EqualOpContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#boolAndOp}.
-	 * @param ctx the parse tree
-	 */
-	void enterBoolAndOp(PrimaParser.BoolAndOpContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#boolAndOp}.
-	 * @param ctx the parse tree
-	 */
-	void exitBoolAndOp(PrimaParser.BoolAndOpContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#boolOrOp}.
-	 * @param ctx the parse tree
-	 */
-	void enterBoolOrOp(PrimaParser.BoolOrOpContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#boolOrOp}.
-	 * @param ctx the parse tree
-	 */
-	void exitBoolOrOp(PrimaParser.BoolOrOpContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link PrimaParser#assignmentOP}.
-	 * @param ctx the parse tree
-	 */
-	void enterAssignmentOP(PrimaParser.AssignmentOPContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#assignmentOP}.
-	 * @param ctx the parse tree
-	 */
-	void exitAssignmentOP(PrimaParser.AssignmentOPContext ctx);
+	void exitVariableName(PrimaParser.VariableNameContext ctx);
 }

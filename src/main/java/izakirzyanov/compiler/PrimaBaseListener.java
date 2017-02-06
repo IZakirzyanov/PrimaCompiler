@@ -28,13 +28,13 @@ public class PrimaBaseListener implements PrimaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterGlobalDeclaration(PrimaParser.GlobalDeclarationContext ctx) { }
+	@Override public void enterGlobalVarDeclaration(PrimaParser.GlobalVarDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitGlobalDeclaration(PrimaParser.GlobalDeclarationContext ctx) { }
+	@Override public void exitGlobalVarDeclaration(PrimaParser.GlobalVarDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -155,18 +155,6 @@ public class PrimaBaseListener implements PrimaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIfStatement(PrimaParser.IfStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIfElseStatement(PrimaParser.IfElseStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIfElseStatement(PrimaParser.IfElseStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -340,13 +328,85 @@ public class PrimaBaseListener implements PrimaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpr(PrimaParser.ExprContext ctx) { }
+	@Override public void enterEXPRBinary(PrimaParser.EXPRBinaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpr(PrimaParser.ExprContext ctx) { }
+	@Override public void exitEXPRBinary(PrimaParser.EXPRBinaryContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEXPRUnary(PrimaParser.EXPRUnaryContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEXPRUnary(PrimaParser.EXPRUnaryContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEXPRReadCall(PrimaParser.EXPRReadCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEXPRReadCall(PrimaParser.EXPRReadCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEXPRFunctionCall(PrimaParser.EXPRFunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEXPRFunctionCall(PrimaParser.EXPRFunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEXPRVarName(PrimaParser.EXPRVarNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEXPRVarName(PrimaParser.EXPRVarNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEXPRParenthesis(PrimaParser.EXPRParenthesisContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEXPRParenthesis(PrimaParser.EXPRParenthesisContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEXPRLiteral(PrimaParser.EXPRLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEXPRLiteral(PrimaParser.EXPRLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -412,121 +472,13 @@ public class PrimaBaseListener implements PrimaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVar(PrimaParser.VarContext ctx) { }
+	@Override public void enterVariableName(PrimaParser.VariableNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVar(PrimaParser.VarContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUnaryIntOp(PrimaParser.UnaryIntOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUnaryIntOp(PrimaParser.UnaryIntOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUnaryBoolOp(PrimaParser.UnaryBoolOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUnaryBoolOp(PrimaParser.UnaryBoolOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDivModMultOp(PrimaParser.DivModMultOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDivModMultOp(PrimaParser.DivModMultOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAddSubOp(PrimaParser.AddSubOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAddSubOp(PrimaParser.AddSubOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCompOp(PrimaParser.CompOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCompOp(PrimaParser.CompOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEqualOp(PrimaParser.EqualOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEqualOp(PrimaParser.EqualOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterBoolAndOp(PrimaParser.BoolAndOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBoolAndOp(PrimaParser.BoolAndOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterBoolOrOp(PrimaParser.BoolOrOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBoolOrOp(PrimaParser.BoolOrOpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAssignmentOP(PrimaParser.AssignmentOPContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAssignmentOP(PrimaParser.AssignmentOPContext ctx) { }
+	@Override public void exitVariableName(PrimaParser.VariableNameContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
