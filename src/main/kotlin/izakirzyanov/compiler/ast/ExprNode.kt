@@ -1,4 +1,4 @@
-package izakirzyanov.compiler.ast.exrp
+package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.ast.ASTNode
 import izakirzyanov.compiler.ast.TypeNode

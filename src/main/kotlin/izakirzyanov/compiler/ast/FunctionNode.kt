@@ -1,6 +1,6 @@
 package izakirzyanov.compiler.ast
 
-import izakirzyanov.compiler.ast.statement.StatementNode
+import izakirzyanov.compiler.ast.StatementNode
 
 class FunctionNode(val signature: FunctionSignatureNode, val body: StatementNode.BlockNode) : ASTNode()
 

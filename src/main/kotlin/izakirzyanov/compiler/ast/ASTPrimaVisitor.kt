@@ -2,10 +2,8 @@ package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.PrimaBaseVisitor
 import izakirzyanov.compiler.PrimaParser
-import izakirzyanov.compiler.ast.exrp.*
-import izakirzyanov.compiler.ast.exrp.ExprNode.*
-import izakirzyanov.compiler.ast.statement.StatementNode
-import izakirzyanov.compiler.ast.statement.StatementNode.*
+import izakirzyanov.compiler.ast.ExprNode.*
+import izakirzyanov.compiler.ast.StatementNode.*
 
 class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: PrimaParser.ProgramContext): ProgramNode {

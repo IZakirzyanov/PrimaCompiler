@@ -1,9 +1,9 @@
-package izakirzyanov.compiler.ast.statement
+package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.ast.ASTNode
 import izakirzyanov.compiler.ast.ArgumentNode
 import izakirzyanov.compiler.ast.TypeNode
-import izakirzyanov.compiler.ast.exrp.ExprNode
+import izakirzyanov.compiler.ast.ExprNode
 
 sealed class StatementNode : ASTNode() {
     class NopNode() : StatementNode()
