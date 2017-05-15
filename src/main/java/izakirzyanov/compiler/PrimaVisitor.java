@@ -1,4 +1,4 @@
-// Generated from D:/Prog/java/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.6
+// Generated from D:/hw/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
 package izakirzyanov.compiler;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -82,30 +82,6 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitIfStatement(PrimaParser.IfStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PrimaParser#forStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForStatement(PrimaParser.ForStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PrimaParser#forInit}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForInit(PrimaParser.ForInitContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PrimaParser#forStopCondition}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForStopCondition(PrimaParser.ForStopConditionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link PrimaParser#forIteration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitForIteration(PrimaParser.ForIterationContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PrimaParser#whileStatement}.
 	 * @param ctx the parse tree

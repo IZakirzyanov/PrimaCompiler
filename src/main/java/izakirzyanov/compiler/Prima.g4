@@ -39,7 +39,6 @@ statement
     | varDeclarationStatement
     | assignmentStatement
     | ifStatement
-    | forStatement
     | whileStatement
     | readStatement
     | writeStatement
@@ -57,23 +56,6 @@ assignment
 
 ifStatement
     : 'if' '(' condition=expr ')' thenBlock=block ('else' elseBlock=block)?
-    ;
-
-forStatement
-    : 'for' '(' forInit? ';' forStopCondition? ';' forIteration? ')' body=block
-    ;
-
-forInit
-    : assignment
-    | varDeclaration
-    ;
-
-forStopCondition
-    : expr
-    ;
-
-forIteration
-    : assignment
     ;
 
 whileStatement

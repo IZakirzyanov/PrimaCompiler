@@ -1,4 +1,4 @@
-// Generated from D:/Prog/java/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.6
+// Generated from D:/hw/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
 package izakirzyanov.compiler;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -155,54 +155,6 @@ public class PrimaBaseListener implements PrimaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIfStatement(PrimaParser.IfStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterForStatement(PrimaParser.ForStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitForStatement(PrimaParser.ForStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterForInit(PrimaParser.ForInitContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitForInit(PrimaParser.ForInitContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterForStopCondition(PrimaParser.ForStopConditionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitForStopCondition(PrimaParser.ForStopConditionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterForIteration(PrimaParser.ForIterationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitForIteration(PrimaParser.ForIterationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

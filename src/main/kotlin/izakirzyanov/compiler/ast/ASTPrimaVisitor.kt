@@ -45,7 +45,6 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         if (ctx.varDeclarationStatement() != null) return visitVarDeclarationStatement(ctx.varDeclarationStatement())
         if (ctx.assignmentStatement() != null) return visitAssignmentStatement(ctx.assignmentStatement())
         if (ctx.ifStatement() != null) return visitIfStatement(ctx.ifStatement())
-        if (ctx.forStatement() != null) return visitForStatement(ctx.forStatement())
         if (ctx.whileStatement() != null) return visitWhileStatement(ctx.whileStatement())
         if (ctx.readStatement() != null) return visitReadStatement(ctx.readStatement())
         if (ctx.writeStatement() != null) return visitWriteStatement(ctx.writeStatement())
@@ -90,16 +89,6 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         val thenBlock = visitBlock(ctx.thenBlock)
         val elseBlock = ctx.elseBlock?.let { visitBlock(it) }
         return IfNode(condition, thenBlock, elseBlock)
-    }
-
-    override fun visitForStatement(ctx: PrimaParser.ForStatementContext): ForNode {
-        val init = ctx.forInit()?.let {
-            it.assignment()?.let { visitAssignment(it) } ?: it.varDeclaration()?.let { visitVarDeclaration(it) }
-        }
-        val stopCondition = ctx.forStopCondition()?.let { visitEXPR(it.expr()) }
-        val iteration = ctx.forIteration()?.let { visitAssignment(it.assignment()) }
-        val body = visitBlock(ctx.body)
-        return ForNode(init, stopCondition, iteration, body)
     }
 
     override fun visitWhileStatement(ctx: PrimaParser.WhileStatementContext): WhileNode {
