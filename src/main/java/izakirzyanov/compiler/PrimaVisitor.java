@@ -89,12 +89,6 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWhileStatement(PrimaParser.WhileStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PrimaParser#readStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitReadStatement(PrimaParser.ReadStatementContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link PrimaParser#readCall}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

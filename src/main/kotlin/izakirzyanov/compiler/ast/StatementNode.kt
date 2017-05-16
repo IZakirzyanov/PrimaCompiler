@@ -12,7 +12,6 @@ sealed class StatementNode : ASTNode() {
     class AssignmentNode(val name: String, val op: String, val value: ExprNode) : StatementNode()
     class IfNode(val condition: ExprNode, val thenBlock: BlockNode, val elseBlock: BlockNode? = null) : StatementNode()
     class WhileNode(val condition: ExprNode, val body: BlockNode) : StatementNode()
-    class ReadNode(val type: TypeNode) : StatementNode()
     class WriteNode(val nextLine: Boolean = true, val value: ExprNode? = null) : StatementNode()
     class ReturnNode(val value: ExprNode) : StatementNode()
     class FunctionCallNode(val name: String, val arguments: List<ExprNode>? = null) : StatementNode()

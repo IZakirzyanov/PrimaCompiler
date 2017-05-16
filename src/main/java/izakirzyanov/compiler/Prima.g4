@@ -40,7 +40,6 @@ statement
     | assignmentStatement
     | ifStatement
     | whileStatement
-    | readStatement
     | writeStatement
     | returnStatement
     | functionCallStatement
@@ -60,10 +59,6 @@ ifStatement
 
 whileStatement
     : 'while' '(' condition=expr ')' body=block
-    ;
-
-readStatement
-    : readCall ';'
     ;
 
 readCall

@@ -29,7 +29,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     override fun visitFunctionSignature(ctx: PrimaParser.FunctionSignatureContext): FunctionSignatureNode {
         val name = ctx.name.text
         val arguments = ctx.functionArguments()?.functionArg()?.map { visitFunctionArg(it) }?.toList()
-        val type = if (ctx.type().nonVoidType() != null) ctx.type().nonVoidType().text.toTypeNode() else null
+        val type = ctx.type().nonVoidType()?.text?.toTypeNode()
         return FunctionSignatureNode(name, arguments, type)
     }
 
@@ -46,7 +46,6 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         if (ctx.assignmentStatement() != null) return visitAssignmentStatement(ctx.assignmentStatement())
         if (ctx.ifStatement() != null) return visitIfStatement(ctx.ifStatement())
         if (ctx.whileStatement() != null) return visitWhileStatement(ctx.whileStatement())
-        if (ctx.readStatement() != null) return visitReadStatement(ctx.readStatement())
         if (ctx.writeStatement() != null) return visitWriteStatement(ctx.writeStatement())
         if (ctx.returnStatement() != null) return visitReturnStatement(ctx.returnStatement())
         if (ctx.functionCallStatement() != null) return visitFunctionCallStatement(ctx.functionCallStatement())
@@ -95,10 +94,6 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         val condition = visitEXPR(ctx.condition)
         val body = visitBlock(ctx.body)
         return WhileNode(condition, body)
-    }
-
-    override fun visitReadStatement(ctx: PrimaParser.ReadStatementContext): ReadNode {
-        return ReadNode(readCallToType(ctx.readCall().name.text))
     }
 
     override fun visitWriteStatement(ctx: PrimaParser.WriteStatementContext): WriteNode {

@@ -172,18 +172,6 @@ public class PrimaBaseListener implements PrimaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReadStatement(PrimaParser.ReadStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitReadStatement(PrimaParser.ReadStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterReadCall(PrimaParser.ReadCallContext ctx) { }
 	/**
 	 * {@inheritDoc}

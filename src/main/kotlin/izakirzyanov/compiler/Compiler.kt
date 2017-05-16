@@ -19,8 +19,8 @@ class Compiler public constructor(){
         if (syntaxErrorListener.hasErrors) {
             for (error in syntaxErrorListener.errors) {
                 System.err.println(error.message)
-                System.exit(1)
             }
+            System.exit(1)
         }
         val visitor = ASTPrimaVisitor()
         val AST = visitor.visit(context)

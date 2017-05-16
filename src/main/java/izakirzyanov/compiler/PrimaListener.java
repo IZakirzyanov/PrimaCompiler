@@ -138,16 +138,6 @@ public interface PrimaListener extends ParseTreeListener {
 	 */
 	void exitWhileStatement(PrimaParser.WhileStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PrimaParser#readStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterReadStatement(PrimaParser.ReadStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link PrimaParser#readStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitReadStatement(PrimaParser.ReadStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link PrimaParser#readCall}.
 	 * @param ctx the parse tree
 	 */
