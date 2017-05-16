@@ -157,7 +157,6 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
             is PrimaParser.EXPRReadCallContext -> visitEXPRReadCall(ctx)
             else -> throw RuntimeException("This should never happen")
         }
-
     }
 }
 
