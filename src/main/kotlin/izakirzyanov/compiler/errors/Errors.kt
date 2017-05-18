@@ -38,7 +38,13 @@ sealed class CompileError(message: String, val line: Int, val column: Int) : Exc
             CompileError("function \"$name\" has \"$expected\" arguments but is called with \"$actual\" arguments.", line, column)
 
     class ArgumentTypeMismatch(name: String, actual: Type, expected: Type, line: Int, column: Int) :
-            CompileError("The variable \"$name\" has \"$actual\" type but expected \"$expected\".", line, column)
+            CompileError("the variable \"$name\" has \"$actual\" type but expected \"$expected\".", line, column)
+
+    class DeadCodeAfterReturn(line: Int, column: Int) :
+            CompileError("dead code after this return.", line, column)
+
+    class FunctionMayNotReturnValue(func: String, line: Int, column: Int) :
+            CompileError("function \"$func\" may not return value somewhere but should.", line, column)
 
     override fun toString(): String {
         return "Compiling ERROR at [$line:$column]: $message"

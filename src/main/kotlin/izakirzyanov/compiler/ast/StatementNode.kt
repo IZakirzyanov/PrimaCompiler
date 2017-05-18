@@ -20,21 +20,49 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             scope.enterScope()
             val errors = ArrayList<CompileError>()
-            statements?.forEach { errors.addAll(it.checkForErrorsAndTypes(scope, functionsList)) }
+            statements?.forEach {
+                if (it is ReturnNode && it != statements.last()) {
+                    errors.add(CompileError.DeadCodeAfterReturn(it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
+                }
+                errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
+            }
             scope.leaveScope()
             return errors
         }
 
-        fun getReturnType(): Type {
-            if (statements == null || statements.isEmpty()) {
-                return Type.Void
+        fun setNameOfFunInReturn(name: String) {
+            statements?.forEach {
+                when (it) {
+                    is BlockNode -> it.setNameOfFunInReturn(name)
+                    is IfNode -> it.setNameOfFunInReturn(name)
+                    is WhileNode -> it.setNameOfFunInReturn(name)
+                    is ReturnNode -> it.setNameOfFunInReturn(name)
+                }
             }
-            val lastStatement = statements.last()
+        }
 
-            if (lastStatement is ReturnNode) {
-                return lastStatement.value.getType()
+        fun alwaysReturns(): Boolean {
+            statements?.forEach {
+                if (it is BlockNode) {
+                    if (it.alwaysReturns()) {
+                        return true
+                    }
+                }
+                if (it is IfNode) {
+                    if (it.alwaysReturns()) {
+                        return true
+                    }
+                }
+                if (it is WhileNode) {
+                    if (it.alwaysReturns()) {
+                        return true
+                    }
+                }
+                if (it is ReturnNode) {
+                    return true
+                }
             }
-            return Type.Void
+            return false
         }
     }
 
@@ -81,6 +109,15 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             }
             return errors
         }
+
+        fun setNameOfFunInReturn(name: String) {
+            thenBlock.setNameOfFunInReturn(name)
+            elseBlock?.setNameOfFunInReturn(name)
+        }
+
+        fun alwaysReturns(): Boolean {
+            return thenBlock.alwaysReturns() && (elseBlock?.alwaysReturns() ?: true)
+        }
     }
 
     class WhileNode(val condition: ExprNode, val body: BlockNode, ctx: ParserRuleContext) : StatementNode(ctx) {
@@ -93,6 +130,14 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             errors.addAll(body.checkForErrorsAndTypes(scope, functionsList))
             return errors
         }
+
+        fun setNameOfFunInReturn(name: String) {
+            body.setNameOfFunInReturn(name)
+        }
+
+        fun alwaysReturns(): Boolean {
+            return body.alwaysReturns()
+        }
     }
 
     class WriteNode(val nextLine: Boolean = true, val value: ExprNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
@@ -101,9 +146,17 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         }
     }
 
-    class ReturnNode(val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx){
+    class ReturnNode(val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
+        lateinit var funName: String
+
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            return noErrors
+            val actual = value.getType()
+            val expected = functionsList[funName]?.signature?.type ?: Type.Void
+            return if (actual != expected) noErrors else listOf(CompileError.ReturnTypeMismatch(funName, actual, expected, ctx.getStart().line, ctx.getStart().charPositionInLine))
+        }
+
+        fun setNameOfFunInReturn(name: String) {
+            funName = name
         }
     }
 

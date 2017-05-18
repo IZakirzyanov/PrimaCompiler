@@ -17,12 +17,12 @@ class FunctionNode(val signature: FunctionSignatureNode, val body: StatementNode
             args.add(it.name)
             scope.putVariableWithOverride(it.name, it.type)
         }
+        body.setNameOfFunInReturn(signature.name)
+        if (!body.alwaysReturns() && signature.type != Type.Void) {
+            errors.add(CompileError.FunctionMayNotReturnValue(signature.name, ctx.getStart().line, ctx.getStart().charPositionInLine))
+        }
 
         errors.addAll(body.checkForErrorsAndTypes(scope, functionsList))
-
-        if (signature.type != body.getReturnType()) {
-            errors.add(CompileError.ReturnTypeMismatch(signature.name, body.getReturnType(), signature.type, ctx.getStart().line, ctx.getStart().charPositionInLine))
-        }
         return errors
     }
 }
