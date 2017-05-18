@@ -104,10 +104,10 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         return ReturnNode(visitEXPR(ctx.expr()), ctx)
     }
 
-    override fun visitFunctionCallStatement(ctx: PrimaParser.FunctionCallStatementContext): FunctionCallNode {
+    override fun visitFunctionCallStatement(ctx: PrimaParser.FunctionCallStatementContext): FunctionCallStatementNode {
         val name = ctx.functionCall().name.text
         val arguments = ctx.functionCall().argumentList().expr().map { visitEXPR(it) }.toList()
-        return FunctionCallNode(name, arguments, ctx)
+        return FunctionCallStatementNode(name, arguments, ctx)
     }
 
     override fun visitEXPRParenthesis(ctx: PrimaParser.EXPRParenthesisContext): ExprNode {

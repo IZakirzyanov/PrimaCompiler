@@ -20,6 +20,9 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
             }
         }
         functions.forEach {
+            if (it.signature.name == "readInt" || it.signature.name == "readBool" || it.signature.name == "write" || it.signature.name == "writeln") {
+                errors.add(FunctionIsAlreadyDefined(it.signature.name, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
+            }
             if (!functionsList.containsKey(it.signature.name)) {
                 functionsList.put(it.signature.name, it)
             } else {
@@ -28,12 +31,12 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
         }
 
         functions.forEach {
-            scope.enterScope()
             errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
-            scope.leaveScope()
         }
 
-        globalVars.forEach { adsada }
+        globalVars.forEach {
+            errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
+        }
 
         return errors
     }
