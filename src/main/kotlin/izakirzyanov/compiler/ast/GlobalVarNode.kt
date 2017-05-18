@@ -1,5 +1,5 @@
 package izakirzyanov.compiler.ast
 
-import izakirzyanov.compiler.ast.ExprNode
+import org.antlr.v4.runtime.ParserRuleContext
 
-class GlobalVarNode(val name: String, val Type: TypeNode, val expr: ExprNode? = null) : ASTNode()
+class GlobalVarNode(val varNode : StatementNode.VarDeclarationNode, ctx: ParserRuleContext) : ASTNode(ctx)

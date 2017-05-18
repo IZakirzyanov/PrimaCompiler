@@ -20,6 +20,6 @@ class SyntaxErrorListener : BaseErrorListener() {
             msg: String?,
             e: RecognitionException?
     ) {
-        errors.add(SyntaxError(msg as String, line, charPositionInLine))
+        errors.add(CompileError.SyntaxError(msg as String, line, charPositionInLine))
     }
 }
