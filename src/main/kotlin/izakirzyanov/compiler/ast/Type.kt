@@ -18,6 +18,8 @@ sealed class Type {
             return "void"
         }
     }
+
+    object Unknown : Type()
 }
 
 fun String.toTypeNode(): Type {

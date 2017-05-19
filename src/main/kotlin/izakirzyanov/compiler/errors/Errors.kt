@@ -1,5 +1,6 @@
 package izakirzyanov.compiler.errors
 
+import izakirzyanov.compiler.ast.Op
 import izakirzyanov.compiler.ast.Type
 
 sealed class CompileError(message: String, val line: Int, val column: Int) : Exception(message) {
@@ -45,6 +46,12 @@ sealed class CompileError(message: String, val line: Int, val column: Int) : Exc
 
     class FunctionMayNotReturnValue(func: String, line: Int, column: Int) :
             CompileError("function \"$func\" may not return value somewhere but should.", line, column)
+
+    class UnsupportedOperator(op: Op, type: Type, line: Int, column: Int) :
+            CompileError("operator \"$op\" is not supported by type \"$type\".", line, column)
+
+    class TypeMismathInBinaryOperator(op: Op, ltype: Type, rtype: Type, line: Int, column: Int) :
+            CompileError("operator \"$op\" requires equal types but here are (\"$ltype\",\"$rtype\").", line, column)
 
     override fun toString(): String {
         return "Compiling ERROR at [$line:$column]: $message"

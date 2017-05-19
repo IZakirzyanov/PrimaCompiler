@@ -129,11 +129,11 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitEXPRUnary(ctx: PrimaParser.EXPRUnaryContext): UnaryNode {
-        return UnaryNode(ctx.op.text, visitEXPR(ctx.expr()), ctx)
+        return UnaryNode(ctx.op.text.toUnOp(), visitEXPR(ctx.expr()), ctx)
     }
 
     override fun visitEXPRBinary(ctx: PrimaParser.EXPRBinaryContext): BinaryNode {
-        return BinaryNode(ctx.op.text, visitEXPR(ctx.left), visitEXPR(ctx.right), ctx)
+        return BinaryNode(ctx.op.text.toBinOp(), visitEXPR(ctx.left), visitEXPR(ctx.right), ctx)
     }
 
     override fun visitEXPRReadCall(ctx: PrimaParser.EXPRReadCallContext): ReadCallNode {
