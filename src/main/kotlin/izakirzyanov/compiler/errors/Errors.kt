@@ -50,7 +50,7 @@ sealed class CompileError(message: String, val line: Int, val column: Int) : Exc
     class UnsupportedOperator(op: Op, type: Type, line: Int, column: Int) :
             CompileError("operator \"$op\" is not supported by type \"$type\".", line, column)
 
-    class TypeMismathInBinaryOperator(op: Op, ltype: Type, rtype: Type, line: Int, column: Int) :
+    class TypeMismatchInBinaryOperator(op: Op, ltype: Type, rtype: Type, line: Int, column: Int) :
             CompileError("operator \"$op\" requires equal types but here are (\"$ltype\",\"$rtype\").", line, column)
 
     override fun toString(): String {

@@ -124,8 +124,8 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         throw RuntimeException("This should never happen")
     }
 
-    override fun visitEXPRVarName(ctx: PrimaParser.EXPRVarNameContext): VaraiableNameNode {
-        return VaraiableNameNode(ctx.variableName().name.text, ctx)
+    override fun visitEXPRVarName(ctx: PrimaParser.EXPRVarNameContext): VariableNameNode {
+        return VariableNameNode(ctx.variableName().name.text, ctx)
     }
 
     override fun visitEXPRUnary(ctx: PrimaParser.EXPRUnaryContext): UnaryNode {

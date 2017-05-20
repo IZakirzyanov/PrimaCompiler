@@ -9,11 +9,11 @@ class Scope {
         scopesStack.add(HashMap<String, Type>())
     }
 
-    fun enterScope() {
+    fun beginNewScope() {
         scopesStack.add(HashMap(scopesStack.last()))
     }
 
-    fun leaveScope() {
+    fun endScope() {
         scopesStack.removeAt(scopesStack.lastIndex)
     }
 

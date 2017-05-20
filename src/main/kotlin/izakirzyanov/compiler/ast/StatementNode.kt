@@ -7,18 +7,17 @@ import java.util.*
 
 sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     abstract fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError>
-    val noErrors = ArrayList<CompileError>()
 
     class NopNode(ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            return noErrors
+            return emptyList()
         }
     }
 
     class BlockNode(val statements: List<StatementNode>? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
 
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            scope.enterScope()
+            scope.beginNewScope()
             val errors = ArrayList<CompileError>()
             statements?.forEach {
                 if (it is ReturnNode && it != statements.last()) {
@@ -26,7 +25,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                 }
                 errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
             }
-            scope.leaveScope()
+            scope.endScope()
             return errors
         }
 
@@ -74,8 +73,8 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             } else {
                 scope.putVariableWithOverride(name, type)
                 if (value != null) {
-                    if (type != value.getType()) {
-                        errors.add(CompileError.VariableTypeMismatch(name, value.getType(), type, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                    if (type != value.type) {
+                        errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
                     }
                 }
             }
@@ -89,8 +88,8 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             val type = scope[name]
             if (type == null) {
                 errors.add(CompileError.VariableIsNotDefined(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
-            } else if (value.getType() != type) {
-                errors.add(CompileError.VariableTypeMismatch(name, value.getType(), type, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            } else if (value.type != type) {
+                errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
             }
             return errors
         }
@@ -99,8 +98,8 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     class IfNode(val condition: ExprNode, val thenBlock: BlockNode, val elseBlock: BlockNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
-            if (condition.getType() != Type.Bool) {
-                errors.add(CompileError.IfConditionMustBeBoolean(condition.getType(), condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
+            if (condition.type != Type.Bool) {
+                errors.add(CompileError.IfConditionMustBeBoolean(condition.type, condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
             }
 
             errors.addAll(thenBlock.checkForErrorsAndTypes(scope, functionsList))
@@ -123,8 +122,8 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     class WhileNode(val condition: ExprNode, val body: BlockNode, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
-            if (condition.getType() != Type.Bool) {
-                errors.add(CompileError.WhileConditionMustBeBoolean(condition.getType(), condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
+            if (condition.type != Type.Bool) {
+                errors.add(CompileError.WhileConditionMustBeBoolean(condition.type, condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
             }
 
             errors.addAll(body.checkForErrorsAndTypes(scope, functionsList))
@@ -142,7 +141,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
 
     class WriteNode(val nextLine: Boolean = true, val value: ExprNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            return noErrors
+            return emptyList()
         }
     }
 
@@ -150,9 +149,9 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         lateinit var funName: String
 
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            val actual = value.getType()
+            val actual = value.type
             val expected = functionsList[funName]?.signature?.type ?: Type.Void
-            return if (actual != expected) noErrors else listOf(CompileError.ReturnTypeMismatch(funName, actual, expected, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            return if (actual != expected) emptyList() else listOf(CompileError.ReturnTypeMismatch(funName, actual, expected, ctx.getStart().line, ctx.getStart().charPositionInLine))
         }
 
         fun setNameOfFunInReturn(name: String) {
@@ -175,8 +174,8 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                 errors.add(CompileError.WrongNumberOfArguments(name, argsActuallyNum, argsExpectedNum, ctx.getStart().line, ctx.getStart().charPositionInLine))
             } else {
                 argsActual.zip(argsExpected).forEach {
-                    if (it.first.getType() != it.second.type) {
-                        errors.add(CompileError.ArgumentTypeMismatch(it.second.name, it.first.getType(), it.second.type,
+                    if (it.first.type != it.second.type) {
+                        errors.add(CompileError.ArgumentTypeMismatch(it.second.name, it.first.type, it.second.type,
                                 it.first.ctx.getStart().line, it.first.ctx.getStart().charPositionInLine))
                     }
                 }
