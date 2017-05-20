@@ -1,15 +1,17 @@
 a: int = +4;
 b: bool;
 
-fun main(a: bool): void {
+fun main(): void {
     a = true;
     b: bool = false;
+    b: int = true;
     b = b && a;
     writeln(foo(1, 2));
 }
 
 fun foo(a: int, b: int): int {
     c: int = +a + b * (-a - 1);
+    return c;
     return c;
 }
 
