@@ -19,7 +19,11 @@ sealed class Type {
         }
     }
 
-    object Unknown : Type()
+    object Unknown : Type() {
+        override fun toString(): String {
+            return "UNKNOWN"
+        }
+    }
 }
 
 fun String.toTypeNode(): Type {

@@ -6,36 +6,40 @@ import org.antlr.v4.runtime.ParserRuleContext
 import java.util.*
 
 sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
-    abstract fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError>
+    abstract fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError>
     open lateinit var type: Type
 
     class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx: ParserRuleContext) : ExprNode(ctx) {
 
-        override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+        override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
-            errors.addAll(left.checkForErrorsAndTypes(scope, functionsList))
-            errors.addAll(right.checkForErrorsAndTypes(scope, functionsList))
+            errors.addAll(left.checkForErrorsAndInferType(scope, functionsList))
+            errors.addAll(right.checkForErrorsAndInferType(scope, functionsList))
             when (op) {
                 is Op.IntOp -> {
                     if (left.type != Type.Integer) {
-                        errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
+                        errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
                         type = Type.Unknown
                     }
                     if (right.type != Type.Integer) {
-                        errors.add(CompileError.UnsupportedOperator(op, right.type, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
+                        errors.add(CompileError.UnsupportedOperator(op, right.type, right.ctx.text, right.ctx.getStart().line, right.ctx.getStart().charPositionInLine))
                         type = Type.Unknown
                     }
                     if (left.type == Type.Integer && right.type == Type.Integer) {
-                        type = Type.Integer
+                        if (op is Op.CmpOp || op is Op.EqualityOp) {
+                            type = Type.Bool
+                        } else {
+                            type = Type.Integer
+                        }
                     }
                 }
                 is Op.BoolOp -> {
                     if (left.type != Type.Bool) {
-                        errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
+                        errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
                         type = Type.Unknown
                     }
                     if (right.type != Type.Bool) {
-                        errors.add(CompileError.UnsupportedOperator(op, right.type, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
+                        errors.add(CompileError.UnsupportedOperator(op, right.type, right.ctx.text, right.ctx.getStart().line, right.ctx.getStart().charPositionInLine))
                         type = Type.Unknown
                     }
                     if (left.type == Type.Bool && right.type == Type.Bool) {
@@ -52,7 +56,7 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     }
 
     class FunctionCallExprNode(val name: String, val arguments: List<ExprNode>? = null, ctx: ParserRuleContext) : ExprNode(ctx) {
-        override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+        override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
 
             val argsActual = arguments ?: ArrayList()
@@ -82,7 +86,7 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             init {
                 type = Type.Bool
             }
-            override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+            override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
                 return emptyList()
             }
         }
@@ -91,26 +95,26 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             init {
                 type = Type.Integer
             }
-            override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+            override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
                 return emptyList()
             }
         }
     }
 
     class ReadCallNode(override var type: Type, ctx: ParserRuleContext) : ExprNode(ctx) {
-        override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+        override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             return emptyList()
         }
     }
 
     class UnaryNode(val op: Op.UnOp, val expr: ExprNode, ctx: ParserRuleContext) : ExprNode(ctx) {
-        override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+        override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
-            errors.addAll(expr.checkForErrorsAndTypes(scope, functionsList))
+            errors.addAll(expr.checkForErrorsAndInferType(scope, functionsList))
             when (op) {
                 is Op.IntOp -> {
                     if (expr.type != Type.Integer) {
-                        errors.add(CompileError.UnsupportedOperator(op, expr.type, expr.ctx.getStart().line, expr.ctx.getStart().charPositionInLine))
+                        errors.add(CompileError.UnsupportedOperator(op, expr.type, expr.ctx.text, expr.ctx.getStart().line, expr.ctx.getStart().charPositionInLine))
                         type = Type.Unknown
                     } else {
                         type = Type.Integer
@@ -118,7 +122,7 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                 }
                 is Op.BoolOp -> {
                     if (expr.type != Type.Bool) {
-                        errors.add(CompileError.UnsupportedOperator(op, expr.type, expr.ctx.getStart().line, expr.ctx.getStart().charPositionInLine))
+                        errors.add(CompileError.UnsupportedOperator(op, expr.type, expr.ctx.text, expr.ctx.getStart().line, expr.ctx.getStart().charPositionInLine))
                         type = Type.Unknown
                     } else {
                         type = Type.Bool
@@ -130,7 +134,7 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     }
 
     class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx) {
-        override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+        override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
             if (scope[name] == null) {
                 errors.add(CompileError.VariableIsNotDefined(name, ctx.getStart().line, ctx.getStart().charPositionInLine))

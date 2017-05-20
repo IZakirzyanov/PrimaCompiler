@@ -50,7 +50,7 @@ assignmentStatement
     ;
 
 assignment
-    : name=Identifier op=('='|'+='|'-='|'*='|'/='|'%='|'&='|'|=') expr
+    : name=Identifier '=' expr
     ;
 
 ifStatement

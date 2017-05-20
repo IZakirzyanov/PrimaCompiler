@@ -15,10 +15,9 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
         val errors = ArrayList<CompileError>()
 
         globalVars.forEach {
-            if (!scope.putVariableWithCheck(it.varNode.name, it.varNode.type)) {
-                errors.add(VariableIsAlreadyDefinedInThisScope(it.varNode.name, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
-            }
+            errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
         }
+
         functions.forEach {
             if (it.signature.name == "readInt" || it.signature.name == "readBool" || it.signature.name == "write" || it.signature.name == "writeln") {
                 errors.add(FunctionIsAlreadyDefined(it.signature.name, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
@@ -33,11 +32,20 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
         functions.forEach {
             errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
         }
-
-        globalVars.forEach {
-            errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
+        val main = functionsList["main"]
+        if (main == null) {
+            errors.add(CompileError.MainFunctionIsMissed())
+        } else if (main.signature.type != Type.Void || main.signature.arguments != null) {
+            errors.add(CompileError.MainFunctionWrongSignature(main.signature.toString(), main.ctx.getStart().line, main.ctx.getStart().charPositionInLine))
         }
 
+        errors.sort { err1, err2 ->
+            if (err1.line != err2.line) {
+                err1.line.compareTo(err2.line)
+            } else {
+                err1.column.compareTo(err2.column)
+            }
+        }
         return errors
     }
 }

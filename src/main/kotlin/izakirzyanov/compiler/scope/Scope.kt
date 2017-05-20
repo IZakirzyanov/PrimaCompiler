@@ -5,12 +5,13 @@ import java.util.*
 
 class Scope {
     private val scopesStack: ArrayList<MutableMap<String, Type>> = ArrayList()
+
     init {
         scopesStack.add(HashMap<String, Type>())
     }
 
     fun beginNewScope() {
-        scopesStack.add(HashMap(scopesStack.last()))
+        scopesStack.add(HashMap())
     }
 
     fun endScope() {
@@ -30,13 +31,13 @@ class Scope {
     }
 
     fun definedInTheLastScope(name: String): Boolean {
-        if (scopesStack.last().containsKey(name) && !scopesStack[scopesStack.lastIndex - 1].containsKey(name)) {
+        if (scopesStack.last().containsKey(name)) {
             return true
         }
         return false
     }
 
     operator fun get(name: String): Type? {
-        return scopesStack.last()[name]
+        return scopesStack.findLast{it.containsKey(name)}?.get(name)
     }
 }

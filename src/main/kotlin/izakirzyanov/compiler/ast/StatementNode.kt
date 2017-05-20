@@ -73,6 +73,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             } else {
                 scope.putVariableWithOverride(name, type)
                 if (value != null) {
+                    errors.addAll(value.checkForErrorsAndInferType(scope, functionsList))
                     if (type != value.type) {
                         errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
                     }
@@ -82,9 +83,10 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         }
     }
 
-    class AssignmentNode(val name: String, val op: String, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
+    class AssignmentNode(val name: String, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
+            errors.addAll(value.checkForErrorsAndInferType(scope, functionsList))
             val type = scope[name]
             if (type == null) {
                 errors.add(CompileError.VariableIsNotDefined(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
@@ -98,6 +100,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     class IfNode(val condition: ExprNode, val thenBlock: BlockNode, val elseBlock: BlockNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
+            errors.addAll(condition.checkForErrorsAndInferType(scope, functionsList))
             if (condition.type != Type.Bool) {
                 errors.add(CompileError.IfConditionMustBeBoolean(condition.type, condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
             }
@@ -122,6 +125,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     class WhileNode(val condition: ExprNode, val body: BlockNode, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
+            errors.addAll(condition.checkForErrorsAndInferType(scope, functionsList))
             if (condition.type != Type.Bool) {
                 errors.add(CompileError.WhileConditionMustBeBoolean(condition.type, condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
             }
@@ -141,7 +145,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
 
     class WriteNode(val nextLine: Boolean = true, val value: ExprNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            return emptyList()
+            return value?.checkForErrorsAndInferType(scope, functionsList) ?: emptyList()
         }
     }
 
@@ -149,9 +153,14 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         lateinit var funName: String
 
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+            val errors = ArrayList<CompileError>()
+            errors.addAll(value.checkForErrorsAndInferType(scope, functionsList))
             val actual = value.type
             val expected = functionsList[funName]?.signature?.type ?: Type.Void
-            return if (actual != expected) emptyList() else listOf(CompileError.ReturnTypeMismatch(funName, actual, expected, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            if (actual != expected) {
+                errors.add(CompileError.ReturnTypeMismatch(funName, actual, expected, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            }
+            return errors
         }
 
         fun setNameOfFunInReturn(name: String) {
@@ -174,6 +183,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                 errors.add(CompileError.WrongNumberOfArguments(name, argsActuallyNum, argsExpectedNum, ctx.getStart().line, ctx.getStart().charPositionInLine))
             } else {
                 argsActual.zip(argsExpected).forEach {
+                    errors.addAll(it.first.checkForErrorsAndInferType(scope, functionsList))
                     if (it.first.type != it.second.type) {
                         errors.add(CompileError.ArgumentTypeMismatch(it.second.name, it.first.type, it.second.type,
                                 it.first.ctx.getStart().line, it.first.ctx.getStart().charPositionInLine))

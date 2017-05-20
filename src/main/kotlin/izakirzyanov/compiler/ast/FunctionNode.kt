@@ -27,6 +27,22 @@ class FunctionNode(val signature: FunctionSignatureNode, val body: StatementNode
     }
 }
 
-class FunctionSignatureNode(val name: String, val arguments: List<ArgumentNode>? = null, val type: Type, ctx: ParserRuleContext) : ASTNode(ctx)
+class FunctionSignatureNode(val name: String, val arguments: List<ArgumentNode>? = null, val type: Type, ctx: ParserRuleContext) : ASTNode(ctx) {
+    override fun toString(): String {
+        return "fun " + name + "(" + argumentsToString() + "): " + type.toString()
+    }
 
-class ArgumentNode(val name: String, val type: Type, ctx: ParserRuleContext) : ASTNode(ctx)
+    private fun argumentsToString(): String {
+        if (arguments == null) {
+            return ""
+        } else {
+            return arguments.joinToString(", ")
+        }
+    }
+}
+
+class ArgumentNode(val name: String, val type: Type, ctx: ParserRuleContext) : ASTNode(ctx) {
+    override fun toString(): String {
+        return "$name: $type"
+    }
+}

@@ -78,9 +78,8 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
 
     override fun visitAssignment(ctx: PrimaParser.AssignmentContext): AssignmentNode {
         val name = ctx.name.text
-        val op = ctx.op.text
         val value = visitEXPR(ctx.expr())
-        return AssignmentNode(name, op, value, ctx)
+        return AssignmentNode(name, value, ctx)
     }
 
     override fun visitIfStatement(ctx: PrimaParser.IfStatementContext): IfNode {
