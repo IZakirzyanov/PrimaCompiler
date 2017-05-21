@@ -35,7 +35,7 @@ public class PrimaParser extends Parser {
 		RULE_boolLiteral = 26, RULE_variableName = 27;
 	public static final String[] ruleNames = {
 		"program", "globalVarDeclaration", "functionDeclaration", "functionSignature", 
-		"functionArguments", "functionArg", "block", "type", "statement", "assignmentStatement", 
+		"functionArguments", "functionArg", "block", "type", "statement", "assignmentStatement",
 		"assignment", "ifStatement", "whileStatement", "readCall", "writeStatement", 
 		"returnStatement", "varDeclarationStatement", "varDeclaration", "nopStatement", 
 		"nonVoidType", "voidType", "expr", "functionCallStatement", "functionCall", 

@@ -1,8 +1,10 @@
 package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.errors.CompileError
-import izakirzyanov.compiler.scope.Scope
+import izakirzyanov.compiler.Scope
 import org.antlr.v4.runtime.ParserRuleContext
+import org.objectweb.asm.Opcodes.ICONST_0
+import org.objectweb.asm.Opcodes.ICONST_1
 import java.util.*
 
 sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
@@ -53,6 +55,10 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             }
             return errors
         }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
     class FunctionCallExprNode(val name: String, val arguments: List<ExprNode>? = null, ctx: ParserRuleContext) : ExprNode(ctx) {
@@ -79,6 +85,10 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             type = functionsList[name]?.signature?.type ?: Type.Unknown
             return errors
         }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
     sealed class LiteralNode(ctx: ParserRuleContext) : ExprNode(ctx) {
@@ -89,6 +99,10 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
                 return emptyList()
             }
+
+            override fun generateByteCode(helper: ASMHelper) {
+                helper.mv!!.visitInsn(if (value) ICONST_1 else ICONST_0)
+            }
         }
 
         class IntLiteralNode(val value: Int, ctx: ParserRuleContext) : LiteralNode(ctx) {
@@ -98,6 +112,11 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
                 return emptyList()
             }
+
+            override fun generateByteCode(helper: ASMHelper) {
+                helper.mv!!.visitLdcInsn(Integer(value))
+            }
+
         }
     }
 
@@ -105,6 +124,11 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             return emptyList()
         }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
     }
 
     class UnaryNode(val op: Op.UnOp, val expr: ExprNode, ctx: ParserRuleContext) : ExprNode(ctx) {
@@ -131,6 +155,11 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             }
             return errors
         }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
     }
 
     class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx) {
@@ -142,5 +171,10 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             type = scope[name] ?: Type.Unknown
             return errors
         }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
     }
 }

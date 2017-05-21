@@ -1,10 +1,13 @@
 package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.errors.CompileError
-import izakirzyanov.compiler.errors.CompileError.VariableIsAlreadyDefinedInThisScope
 import izakirzyanov.compiler.errors.CompileError.FunctionIsAlreadyDefined
-import izakirzyanov.compiler.scope.Scope
+import izakirzyanov.compiler.Scope
 import org.antlr.v4.runtime.ParserRuleContext
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.FieldVisitor
+import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes.*
 import java.util.*
 
 class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<GlobalVarNode>, ctx: ParserRuleContext) : ASTNode(ctx) {
@@ -39,13 +42,48 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
             errors.add(CompileError.MainFunctionWrongSignature(main.signature.toString(), main.ctx.getStart().line, main.ctx.getStart().charPositionInLine))
         }
 
-        errors.sort { err1, err2 ->
+        errors.sortWith(Comparator({ err1, err2 ->
             if (err1.line != err2.line) {
                 err1.line.compareTo(err2.line)
             } else {
                 err1.column.compareTo(err2.column)
             }
-        }
+        }))
+
         return errors
+    }
+
+    fun getByteCode(className: String): ByteArray {
+        val cw = ClassWriter(ClassWriter.COMPUTE_FRAMES)
+        val fv: FieldVisitor? = null
+        val mv: MethodVisitor? = null
+        generateByteCode(ASMHelper(cw, fv, mv, className))
+        return cw.toByteArray()
+    }
+
+    override fun generateByteCode(helper: ASMHelper) {
+        helper.cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, helper.className, null, "java/lang/Object", null)
+        helper.mv = helper.cw.visitMethod(0, "<init>", "()V", null, null)
+        helper.mv!!.visitCode()
+        helper.mv!!.visitVarInsn(ALOAD, 0)
+        helper.mv!!.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+        helper.mv!!.visitInsn(RETURN)
+        helper.mv!!.visitMaxs(0, 0)
+        helper.mv!!.visitEnd()
+
+        if (globalVars.fold(false, { acc, globalVarNode -> acc || (globalVarNode.varNode.value != null)})) {
+            helper.mv = helper.cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "<clinit>", "()V", null, null)
+            helper.mv!!.visitCode()
+            globalVars.forEach { it.generateByteCode(helper) }
+            helper.mv!!.visitInsn(RETURN)
+            helper.mv!!.visitMaxs(0, 0)
+            helper.mv!!.visitEnd()
+        } else {
+            globalVars.forEach { it.generateByteCode(helper) }
+        }
+
+        functions.forEach { it.generateByteCode(helper) }
+
+        helper.cw.visitEnd()
     }
 }

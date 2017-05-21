@@ -1,4 +1,4 @@
-package izakirzyanov.compiler.scope
+package izakirzyanov.compiler
 
 import izakirzyanov.compiler.ast.Type
 import java.util.*

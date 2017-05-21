@@ -1,9 +1,10 @@
 package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.errors.CompileError
-import izakirzyanov.compiler.scope.Scope
+import izakirzyanov.compiler.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import java.util.*
+import org.objectweb.asm.Opcodes.*
 
 sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     abstract fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError>
@@ -11,6 +12,10 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     class NopNode(ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             return emptyList()
+        }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
     }
 
@@ -63,6 +68,10 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             }
             return false
         }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            statements?.forEach { it.generateByteCode(helper) }
+        }
     }
 
     class VarDeclarationNode(val name: String, val type: Type, val value: ExprNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
@@ -81,6 +90,10 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             }
             return errors
         }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
     class AssignmentNode(val name: String, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
@@ -94,6 +107,10 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                 errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
             }
             return errors
+        }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
     }
 
@@ -120,6 +137,10 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         fun alwaysReturns(): Boolean {
             return thenBlock.alwaysReturns() && (elseBlock?.alwaysReturns() ?: true)
         }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
     class WhileNode(val condition: ExprNode, val body: BlockNode, ctx: ParserRuleContext) : StatementNode(ctx) {
@@ -141,11 +162,29 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         fun alwaysReturns(): Boolean {
             return body.alwaysReturns()
         }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 
     class WriteNode(val nextLine: Boolean = true, val value: ExprNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             return value?.checkForErrorsAndInferType(scope, functionsList) ?: emptyList()
+        }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            if (nextLine) {
+                helper.mv!!.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
+                value?.generateByteCode(helper)
+                helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(" + (value?.type?.toJVMType() ?: "") + ")V", false)
+            } else {
+                if (value != null) {
+                    helper.mv!!.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
+                    value.generateByteCode(helper)
+                    helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(" + value.type.toJVMType() + ")V", false)
+                }
+            }
         }
     }
 
@@ -165,6 +204,10 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
 
         fun setNameOfFunInReturn(name: String) {
             funName = name
+        }
+
+        override fun generateByteCode(helper: ASMHelper) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
     }
 
@@ -192,5 +235,9 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             }
             return errors
         }
+    }
+
+    override fun generateByteCode(helper: ASMHelper) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

@@ -2,8 +2,9 @@ package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.errors.CompileError.DuplicatedArgument
-import izakirzyanov.compiler.scope.Scope
+import izakirzyanov.compiler.Scope
 import org.antlr.v4.runtime.ParserRuleContext
+import org.objectweb.asm.Opcodes.*
 import java.util.*
 
 class FunctionNode(val signature: FunctionSignatureNode, val body: StatementNode.BlockNode, ctx: ParserRuleContext) : ASTNode(ctx) {
@@ -25,6 +26,18 @@ class FunctionNode(val signature: FunctionSignatureNode, val body: StatementNode
         errors.addAll(body.checkForErrorsAndTypes(scope, functionsList))
         return errors
     }
+
+    override fun generateByteCode(helper: ASMHelper) {
+        helper.mv = helper.cw.visitMethod(ACC_PUBLIC + ACC_STATIC, signature.name, signature.toJVMType(), null, null)
+        helper.mv!!.visitCode()
+        body.generateByteCode(helper)
+        if (signature.type == Type.Void) {
+            helper.mv!!.visitInsn(RETURN)
+        }
+        helper.mv!!.visitMaxs(0, 0)
+        helper.mv!!.visitEnd()
+    }
+
 }
 
 class FunctionSignatureNode(val name: String, val arguments: List<ArgumentNode>? = null, val type: Type, ctx: ParserRuleContext) : ASTNode(ctx) {
@@ -39,10 +52,28 @@ class FunctionSignatureNode(val name: String, val arguments: List<ArgumentNode>?
             return arguments.joinToString(", ")
         }
     }
+
+    override fun generateByteCode(helper: ASMHelper) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    fun toJVMType(): String {
+        if (name == "main") {
+            return "([Ljava/lang/String;)V"
+        } else {
+            return "(" + arguments?.map { it.type.toJVMType() }?.joinToString { "" } + ")" + type.toJVMType()
+        }
+    }
+
 }
 
 class ArgumentNode(val name: String, val type: Type, ctx: ParserRuleContext) : ASTNode(ctx) {
     override fun toString(): String {
         return "$name: $type"
     }
+
+    override fun generateByteCode(helper: ASMHelper) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 }

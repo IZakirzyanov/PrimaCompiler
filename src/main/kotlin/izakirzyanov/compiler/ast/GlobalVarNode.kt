@@ -1,12 +1,22 @@
 package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.errors.CompileError
-import izakirzyanov.compiler.scope.Scope
+import izakirzyanov.compiler.Scope
 import org.antlr.v4.runtime.ParserRuleContext
+import org.objectweb.asm.Opcodes.*
 import java.util.*
 
 class GlobalVarNode(val varNode : StatementNode.VarDeclarationNode, ctx: ParserRuleContext) : ASTNode(ctx) {
     fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): Collection<CompileError> {
         return varNode.checkForErrorsAndTypes(scope, functionsList)
+    }
+
+    override fun generateByteCode(helper: ASMHelper) {
+        //TODO: THINK ABOUT FINAL STATIC - CONSTANTS. LAST PARAMETER
+        helper.cw.visitField(ACC_PUBLIC + ACC_STATIC, varNode.name, varNode.type.toJVMType(), null, null).visitEnd()
+        if (varNode.value != null) {
+            varNode.value.generateByteCode(helper)
+            helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, varNode.name, varNode.type.toJVMType())
+        }
     }
 }

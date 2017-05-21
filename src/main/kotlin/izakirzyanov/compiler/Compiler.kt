@@ -1,14 +1,13 @@
 package izakirzyanov.compiler
 
-import izakirzyanov.compiler.ast.ASTNode
 import izakirzyanov.compiler.ast.ASTPrimaVisitor
 import izakirzyanov.compiler.ast.ProgramNode
 import izakirzyanov.compiler.errors.SyntaxErrorListener
 import org.antlr.v4.runtime.ANTLRFileStream
 import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.ConsoleErrorListener
+import java.io.File
 
-class Compiler public constructor(){
+class Compiler {
 
     fun parse(fileName: String): ProgramNode {
         val stream = ANTLRFileStream(fileName)
@@ -28,12 +27,16 @@ class Compiler public constructor(){
         return AST
     }
 
-    fun checkAndInferTypes(AST: ProgramNode) {
-        val errors = AST.checkForErrorsAndTypes()
-        if (!errors.isEmpty()) {
+    fun compile(fileName: String) {
+        if (!fileName.endsWith(".prima")) {
+            System.err.println("file name should be \"[name].prima\"")
+        }
+        val program = parse(fileName)
+        val errors = program.checkForErrorsAndTypes()
+        if (errors.isNotEmpty()) {
             errors.forEach { System.err.println(it) }
-            System.exit(1)
+        } else {
+            File(fileName.dropLast(6) + ".class").writeBytes(program.getByteCode(fileName.dropLast(6)))
         }
     }
-
 }
