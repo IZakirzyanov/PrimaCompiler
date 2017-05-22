@@ -61,9 +61,8 @@ class FunctionSignatureNode(val name: String, val arguments: List<ArgumentNode>?
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
         if (name == "main") {
             scope.varNums++
-        } else {
-            arguments?.forEach { scope.putVariableWithOverride(it.name, it.type) }
         }
+        arguments?.forEach { scope.putVariableWithOverride(it.name, it.type) }
         helper.mv = helper.cw.visitMethod(ACC_PUBLIC + ACC_STATIC, name, this.toJVMType(), null, null)
     }
 

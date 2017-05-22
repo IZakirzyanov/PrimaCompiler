@@ -18,6 +18,16 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             errors.addAll(left.checkForErrorsAndInferType(scope, functionsList))
             errors.addAll(right.checkForErrorsAndInferType(scope, functionsList))
             when (op) {
+                is Op.EqualityOp -> {
+                    type = Type.Bool
+                }
+                is Op.Plus -> {
+                    if (left.type == Type.Integer && right.type == Type.Integer) {
+                        type = Type.Integer
+                    } else if (left.type == Type.Str && right.type == Type.Str) {
+                        type = Type.Str
+                    }
+                }
                 is Op.IntOp -> {
                     if (left.type != Type.Integer) {
                         errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
@@ -28,7 +38,7 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                         type = Type.Unknown
                     }
                     if (left.type == Type.Integer && right.type == Type.Integer) {
-                        if (op is Op.CmpOp || op is Op.EqualityOp) {
+                        if (op is Op.CmpOp) {
                             type = Type.Bool
                         } else {
                             type = Type.Integer
@@ -59,9 +69,21 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
             when (op) {
                 Op.Plus -> {
-                    left.generateByteCode(helper, scope, functionsList)
-                    right.generateByteCode(helper, scope, functionsList)
-                    helper.mv!!.visitInsn(IADD)
+                    if (left.type == Type.Integer) {
+                        left.generateByteCode(helper, scope, functionsList)
+                        right.generateByteCode(helper, scope, functionsList)
+                        helper.mv!!.visitInsn(IADD)
+                    }
+                    if (left.type == Type.Str) {
+                        helper.mv!!.visitTypeInsn(NEW, "java/lang/StringBuilder")
+                        helper.mv!!.visitInsn(DUP)
+                        helper.mv!!.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false)
+                        left.generateByteCode(helper, scope, functionsList)
+                        helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false)
+                        right.generateByteCode(helper, scope, functionsList)
+                        helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false)
+                        helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false)
+                    }
                 }
                 Op.Minus -> {
                     left.generateByteCode(helper, scope, functionsList)
@@ -112,16 +134,23 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                     helper.mv!!.visitLabel(l2)
                 }
                 Op.EQ -> {
-                    left.generateByteCode(helper, scope, functionsList)
-                    right.generateByteCode(helper, scope, functionsList)
-                    val l0 = Label()
-                    helper.mv!!.visitJumpInsn(IF_ICMPNE, l0)
-                    helper.mv!!.visitInsn(ICONST_1)
-                    val l1 = Label()
-                    helper.mv!!.visitJumpInsn(GOTO, l1)
-                    helper.mv!!.visitLabel(l0)
-                    helper.mv!!.visitInsn(ICONST_0)
-                    helper.mv!!.visitLabel(l1)
+                    if (left.type.isPrimitive) {
+                        left.generateByteCode(helper, scope, functionsList)
+                        right.generateByteCode(helper, scope, functionsList)
+                        val l0 = Label()
+                        helper.mv!!.visitJumpInsn(IF_ICMPNE, l0)
+                        helper.mv!!.visitInsn(ICONST_1)
+                        val l1 = Label()
+                        helper.mv!!.visitJumpInsn(GOTO, l1)
+                        helper.mv!!.visitLabel(l0)
+                        helper.mv!!.visitInsn(ICONST_0)
+                        helper.mv!!.visitLabel(l1)
+                    }
+                    if (left.type == Type.Str) {
+                        left.generateByteCode(helper, scope, functionsList)
+                        right.generateByteCode(helper, scope, functionsList)
+                        helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false)
+                    }
                 }
                 Op.NE -> {
                     left.generateByteCode(helper, scope, functionsList)
@@ -247,6 +276,22 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             }
 
         }
+
+        class StringLiteralNode(val value: String, ctx: ParserRuleContext) : LiteralNode(ctx) {
+            init {
+                type = Type.Str
+            }
+            override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+                return emptyList()
+            }
+
+            override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+                helper.mv!!.visitTypeInsn(NEW, "java/lang/String")
+                helper.mv!!.visitInsn(DUP)
+                helper.mv!!.visitLdcInsn(value)
+                helper.mv!!.visitMethodInsn(INVOKESPECIAL, "java/lang/String", "<init>", "(Ljava/lang/String;)V", false)
+            }
+        }
     }
 
     class ReadCallNode(override var type: Type, ctx: ParserRuleContext) : ExprNode(ctx) {
@@ -269,6 +314,9 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             } else if (type == Type.Integer) {
                 helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum("!scanner"))
                 helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "nextInt", "()I", false)
+            } else if (type == Type.Str) {
+                helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum("!scanner"))
+                helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/util/Scanner", "next", "()Ljava/lang/String;", false)
             }
         }
 
@@ -333,7 +381,11 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             if (scope.isGlobal(name)) {
                 helper.mv!!.visitFieldInsn(GETSTATIC, helper.className, name, scope.getType(name)?.toJVMType())
             } else {
-                helper.mv!!.visitVarInsn(ILOAD, scope.getVarNum(name))
+                if (scope.getType(name)!!.isPrimitive) {
+                    helper.mv!!.visitVarInsn(ILOAD, scope.getVarNum(name))
+                } else {
+                    helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum(name))
+                }
             }
         }
 

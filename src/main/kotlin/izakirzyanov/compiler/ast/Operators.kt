@@ -5,8 +5,9 @@ interface Op {
     interface BinOp : Op
     interface UnOp : Op
     interface IntOp : Op
+    interface StringOp : Op
     interface BoolOp : Op
-    interface EqualityOp : IntOp, BoolOp
+    interface EqualityOp : IntOp, BoolOp, StringOp
     interface CmpOp : IntOp
 
     object Mult : BinOp, IntOp {
@@ -15,7 +16,7 @@ interface Op {
         }
     }
 
-    object Plus : BinOp, IntOp {
+    object Plus : BinOp, IntOp, StringOp {
         override fun toString(): String {
             return "+"
         }

@@ -412,6 +412,18 @@ public class PrimaBaseListener implements PrimaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterStringLiteral(PrimaParser.StringLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitStringLiteral(PrimaParser.StringLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterVariableName(PrimaParser.VariableNameContext ctx) { }
 	/**
 	 * {@inheritDoc}

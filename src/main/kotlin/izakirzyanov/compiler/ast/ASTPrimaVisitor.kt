@@ -105,7 +105,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
 
     override fun visitFunctionCallStatement(ctx: PrimaParser.FunctionCallStatementContext): FunctionCallStatementNode {
         val name = ctx.functionCall().name.text
-        val arguments = ctx.functionCall().argumentList().expr().map { visitEXPR(it) }.toList()
+        val arguments = ctx.functionCall().argumentList()?.expr()?.map { visitEXPR(it) }?.toList()
         return FunctionCallStatementNode(name, arguments, ctx)
     }
 
@@ -119,6 +119,9 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         }
         if (ctx.intLiteral() != null) {
             return LiteralNode.IntLiteralNode(ctx.intLiteral().text.toInt(), ctx)
+        }
+        if (ctx.stringLiteral() != null) {
+            return LiteralNode.StringLiteralNode(ctx.stringLiteral().text.toString().drop(1).dropLast(1), ctx)
         }
         throw RuntimeException("This should never happen")
     }
@@ -163,6 +166,7 @@ fun readCallToType(str: String): Type {
     return when (str) {
         "readInt" -> Type.Integer
         "readBool" -> Type.Bool
+        "readStr" -> Type.Str
         else -> throw RuntimeException("Shouldn't be here!")
     }
 }

@@ -216,6 +216,12 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBoolLiteral(PrimaParser.BoolLiteralContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link PrimaParser#stringLiteral}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringLiteral(PrimaParser.StringLiteralContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link PrimaParser#variableName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

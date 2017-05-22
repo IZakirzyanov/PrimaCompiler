@@ -62,7 +62,7 @@ whileStatement
     ;
 
 readCall
-    : name=('readInt'|'readBool') '(' ')'
+    : name=('readInt'|'readBool'|'readStr') '(' ')'
     ;
 
 writeStatement
@@ -88,6 +88,7 @@ nopStatement
 nonVoidType
    	: 'int'
    	| 'bool'
+   	| 'str'
 	;
 
 voidType
@@ -98,6 +99,7 @@ expr
    	: '(' expr ')' # eXPRParenthesis
    	| intLiteral # eXPRLiteral
    	| boolLiteral # eXPRLiteral
+   	| stringLiteral # eXPRLiteral
    	| variableName # eXPRVarName
    	| op=('+'|'-') expr # eXPRUnary
    	| op='!' expr # eXPRUnary
@@ -131,18 +133,25 @@ boolLiteral
     : B
     ;
 
+stringLiteral
+	: STRING
+	;
+
 variableName
     : name=Identifier
     ;
 
 
-Nop         : 'nop' ;
+Nop     : 'nop' ;
 
 B       : 'true'
         | 'false'
         ;
 Z       : '0'
         | [1-9][0-9]*
+        ;
+
+STRING  : '"' ( '\\' [btnfr"'\\] | ~[\r\n\\"] )* '"'
         ;
 
 Identifier  : ID ;

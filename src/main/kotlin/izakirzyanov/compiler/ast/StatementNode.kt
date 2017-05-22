@@ -102,7 +102,11 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
             scope.putVariableWithOverride(name, type)
             value.generateByteCode(helper, scope, functionsList)
-            helper.mv!!.visitVarInsn(ISTORE, scope.getVarNum(name))
+            if (type.isPrimitive) {
+                helper.mv!!.visitVarInsn(ISTORE, scope.getVarNum(name))
+            } else {
+                helper.mv!!.visitVarInsn(ASTORE, scope.getVarNum(name))
+            }
         }
     }
 
@@ -121,10 +125,15 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
             value.generateByteCode(helper, scope, functionsList)
+            val type = scope.getType(name)
             if (scope.isGlobal(name)) {
-                helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, name, scope.getType(name)?.toJVMType())
+                helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, name, type?.toJVMType())
             } else {
-                helper.mv!!.visitVarInsn(ISTORE, scope.getVarNum(name))
+                if (type!!.isPrimitive) {
+                    helper.mv!!.visitVarInsn(ISTORE, scope.getVarNum(name))
+                } else {
+                    helper.mv!!.visitVarInsn(ASTORE, scope.getVarNum(name))
+                }
             }
         }
     }
@@ -158,8 +167,11 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             val l0 = Label()
             helper.mv!!.visitJumpInsn(IFEQ, l0)
             thenBlock.generateByteCode(helper, scope, functionsList)
+            val l1 = Label()
+            helper.mv!!.visitJumpInsn(GOTO, l1)
             helper.mv!!.visitLabel(l0)
             elseBlock?.generateByteCode(helper, scope, functionsList)
+            helper.mv!!.visitLabel(l1)
         }
     }
 
@@ -235,7 +247,11 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
             value.generateByteCode(helper, scope, functionsList)
-            helper.mv!!.visitInsn(IRETURN)
+            if (value.type.isPrimitive) {
+                helper.mv!!.visitInsn(IRETURN)
+            } else {
+                helper.mv!!.visitInsn(ARETURN)
+            }
         }
     }
 

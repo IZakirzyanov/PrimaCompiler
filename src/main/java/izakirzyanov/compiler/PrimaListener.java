@@ -352,6 +352,16 @@ public interface PrimaListener extends ParseTreeListener {
 	 */
 	void exitBoolLiteral(PrimaParser.BoolLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link PrimaParser#stringLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringLiteral(PrimaParser.StringLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PrimaParser#stringLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringLiteral(PrimaParser.StringLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link PrimaParser#variableName}.
 	 * @param ctx the parse tree
 	 */

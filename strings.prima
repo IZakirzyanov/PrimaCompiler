@@ -1,0 +1,17 @@
+fun main(): void {
+	greetings();
+	var name: str = getName();
+	if (name == "Ilya") {
+		writeln("Hello, master!");
+	} else {
+		writeln("Hello, " + name + "!");
+	}
+}
+
+fun greetings(): void {
+	writeln("What is your name?");
+}
+
+fun getName(): str {
+	return readStr();
+}
