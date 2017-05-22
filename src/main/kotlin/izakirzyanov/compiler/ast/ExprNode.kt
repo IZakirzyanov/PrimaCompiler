@@ -153,16 +153,31 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                     }
                 }
                 Op.NE -> {
-                    left.generateByteCode(helper, scope, functionsList)
-                    right.generateByteCode(helper, scope, functionsList)
-                    val l0 = Label()
-                    helper.mv!!.visitJumpInsn(IF_ICMPEQ, l0)
-                    helper.mv!!.visitInsn(ICONST_1)
-                    val l1 = Label()
-                    helper.mv!!.visitJumpInsn(GOTO, l1)
-                    helper.mv!!.visitLabel(l0)
-                    helper.mv!!.visitInsn(ICONST_0)
-                    helper.mv!!.visitLabel(l1)
+                    if (left.type.isPrimitive) {
+                        left.generateByteCode(helper, scope, functionsList)
+                        right.generateByteCode(helper, scope, functionsList)
+                        val l0 = Label()
+                        helper.mv!!.visitJumpInsn(IF_ICMPEQ, l0)
+                        helper.mv!!.visitInsn(ICONST_1)
+                        val l1 = Label()
+                        helper.mv!!.visitJumpInsn(GOTO, l1)
+                        helper.mv!!.visitLabel(l0)
+                        helper.mv!!.visitInsn(ICONST_0)
+                        helper.mv!!.visitLabel(l1)
+                    }
+                    if (left.type == Type.Str) {
+                        left.generateByteCode(helper, scope, functionsList)
+                        right.generateByteCode(helper, scope, functionsList)
+                        helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false)
+                        val l0 = Label()
+                        helper.mv!!.visitJumpInsn(IFNE, l0)
+                        helper.mv!!.visitInsn(ICONST_1)
+                        val l1 = Label()
+                        helper.mv!!.visitJumpInsn(GOTO, l1)
+                        helper.mv!!.visitLabel(l0)
+                        helper.mv!!.visitInsn(ICONST_0)
+                        helper.mv!!.visitLabel(l1)
+                    }
                 }
                 Op.GT -> {
                     left.generateByteCode(helper, scope, functionsList)
