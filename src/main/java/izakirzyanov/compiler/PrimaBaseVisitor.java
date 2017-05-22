@@ -1,4 +1,4 @@
-// Generated from D:/hw/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
+// Generated from D:/prog/studying/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
 package izakirzyanov.compiler;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
