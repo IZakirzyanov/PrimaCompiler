@@ -55,13 +55,13 @@ fun binpow(a: int, n: int): int {
 Some string stuff:
 ```kotlin
 fun main(): void {
-	greetings();
-	var name: str = getName();
-	if (name == "Ilya") {
-		writeln("Hello, master!");
-	} else {
-		writeln("Hello, " + name + "!");
-	}
+    greetings();
+    var name: str = getName();
+    if (name == "Ilya") {
+        writeln("Hello, master!");
+    } else {
+        writeln("Hello, " + name + "!");
+    }
 }
 
 fun greetings(): void {
