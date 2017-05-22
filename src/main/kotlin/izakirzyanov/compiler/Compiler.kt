@@ -36,7 +36,9 @@ class Compiler {
         if (errors.isNotEmpty()) {
             errors.forEach { System.err.println(it) }
         } else {
-            File(fileName.dropLast(6) + ".class").writeBytes(program.getByteCode(fileName.dropLast(6)))
+            val clazz = fileName.dropLast(6) + ".class"
+            File(clazz).writeBytes(program.getByteCode(fileName.dropLast(6)))
+            println("COMPILED TO \"$clazz\" SUCCESSFULLY!")
         }
     }
 }
