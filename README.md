@@ -65,10 +65,10 @@ fun main(): void {
 }
 
 fun greetings(): void {
-	writeln("What is your name?");
+    writeln("What is your name?");
 }
 
 fun getName(): str {
-	return readStr();
+    return readStr();
 }
 ```
