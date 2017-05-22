@@ -77,6 +77,12 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignment(PrimaParser.AssignmentContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link PrimaParser#arraySetterStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArraySetterStatement(PrimaParser.ArraySetterStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link PrimaParser#ifStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -113,11 +119,25 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVarDeclarationStatement(PrimaParser.VarDeclarationStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link PrimaParser#varDeclaration}.
+	 * Visit a parse tree produced by the {@code primitiveDeclaration}
+	 * labeled alternative in {@link PrimaParser#varDeclaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitVarDeclaration(PrimaParser.VarDeclarationContext ctx);
+	T visitPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code arrayDeclaration}
+	 * labeled alternative in {@link PrimaParser#varDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayDeclaration(PrimaParser.ArrayDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PrimaParser#arrayInitializer}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayInitializer(PrimaParser.ArrayInitializerContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PrimaParser#nopStatement}.
 	 * @param ctx the parse tree
@@ -130,6 +150,24 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNonVoidType(PrimaParser.NonVoidTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PrimaParser#primitiveType}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrimitiveType(PrimaParser.PrimitiveTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PrimaParser#arrayType}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayType(PrimaParser.ArrayTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PrimaParser#dims}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDims(PrimaParser.DimsContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PrimaParser#voidType}.
 	 * @param ctx the parse tree
@@ -165,6 +203,13 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEXPRFunctionCall(PrimaParser.EXPRFunctionCallContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code eXPRArrayGetter}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEXPRArrayGetter(PrimaParser.EXPRArrayGetterContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code eXPRVarName}
 	 * labeled alternative in {@link PrimaParser#expr}.
 	 * @param ctx the parse tree
@@ -185,6 +230,12 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitEXPRLiteral(PrimaParser.EXPRLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PrimaParser#arrayGetter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayGetter(PrimaParser.ArrayGetterContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PrimaParser#functionCallStatement}.
 	 * @param ctx the parse tree

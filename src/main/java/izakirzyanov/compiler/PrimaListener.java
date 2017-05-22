@@ -118,6 +118,16 @@ public interface PrimaListener extends ParseTreeListener {
 	 */
 	void exitAssignment(PrimaParser.AssignmentContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link PrimaParser#arraySetterStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterArraySetterStatement(PrimaParser.ArraySetterStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PrimaParser#arraySetterStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitArraySetterStatement(PrimaParser.ArraySetterStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link PrimaParser#ifStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -178,15 +188,39 @@ public interface PrimaListener extends ParseTreeListener {
 	 */
 	void exitVarDeclarationStatement(PrimaParser.VarDeclarationStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link PrimaParser#varDeclaration}.
+	 * Enter a parse tree produced by the {@code primitiveDeclaration}
+	 * labeled alternative in {@link PrimaParser#varDeclaration}.
 	 * @param ctx the parse tree
 	 */
-	void enterVarDeclaration(PrimaParser.VarDeclarationContext ctx);
+	void enterPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link PrimaParser#varDeclaration}.
+	 * Exit a parse tree produced by the {@code primitiveDeclaration}
+	 * labeled alternative in {@link PrimaParser#varDeclaration}.
 	 * @param ctx the parse tree
 	 */
-	void exitVarDeclaration(PrimaParser.VarDeclarationContext ctx);
+	void exitPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code arrayDeclaration}
+	 * labeled alternative in {@link PrimaParser#varDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayDeclaration(PrimaParser.ArrayDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code arrayDeclaration}
+	 * labeled alternative in {@link PrimaParser#varDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayDeclaration(PrimaParser.ArrayDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PrimaParser#arrayInitializer}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayInitializer(PrimaParser.ArrayInitializerContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PrimaParser#arrayInitializer}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayInitializer(PrimaParser.ArrayInitializerContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PrimaParser#nopStatement}.
 	 * @param ctx the parse tree
@@ -207,6 +241,36 @@ public interface PrimaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNonVoidType(PrimaParser.NonVoidTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PrimaParser#primitiveType}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimitiveType(PrimaParser.PrimitiveTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PrimaParser#primitiveType}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimitiveType(PrimaParser.PrimitiveTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PrimaParser#arrayType}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayType(PrimaParser.ArrayTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PrimaParser#arrayType}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayType(PrimaParser.ArrayTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PrimaParser#dims}.
+	 * @param ctx the parse tree
+	 */
+	void enterDims(PrimaParser.DimsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PrimaParser#dims}.
+	 * @param ctx the parse tree
+	 */
+	void exitDims(PrimaParser.DimsContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PrimaParser#voidType}.
 	 * @param ctx the parse tree
@@ -266,6 +330,18 @@ public interface PrimaListener extends ParseTreeListener {
 	 */
 	void exitEXPRFunctionCall(PrimaParser.EXPRFunctionCallContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code eXPRArrayGetter}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterEXPRArrayGetter(PrimaParser.EXPRArrayGetterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code eXPRArrayGetter}
+	 * labeled alternative in {@link PrimaParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitEXPRArrayGetter(PrimaParser.EXPRArrayGetterContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code eXPRVarName}
 	 * labeled alternative in {@link PrimaParser#expr}.
 	 * @param ctx the parse tree
@@ -301,6 +377,16 @@ public interface PrimaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitEXPRLiteral(PrimaParser.EXPRLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PrimaParser#arrayGetter}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayGetter(PrimaParser.ArrayGetterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PrimaParser#arrayGetter}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayGetter(PrimaParser.ArrayGetterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PrimaParser#functionCallStatement}.
 	 * @param ctx the parse tree

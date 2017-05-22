@@ -84,7 +84,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         }
     }
 
-    class VarDeclarationNode(val name: String, val type: Type, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
+    class PrimitiveVarDeclarationNode(val name: String, val type: Type, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
             if (scope.definedInTheLastScope(name)) {
@@ -107,6 +107,16 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             } else {
                 helper.mv!!.visitVarInsn(ASTORE, scope.getVarNum(name))
             }
+        }
+    }
+
+    class ArrayVarDeclarationNode(val name: String, val type: Type, val primitiveType: Type, val indices: List<ExprNode>?, ctx: ParserRuleContext) : StatementNode(ctx) {
+        override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
     }
 

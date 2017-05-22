@@ -37,6 +37,7 @@ statement
     : nopStatement
     | block
     | varDeclarationStatement
+    | arraySetterStatement
     | assignmentStatement
     | ifStatement
     | whileStatement
@@ -51,6 +52,10 @@ assignmentStatement
 
 assignment
     : name=Identifier '=' expr
+    ;
+
+arraySetterStatement
+    : name=Identifier ('['index=expr']')+ '=' value=expr
     ;
 
 ifStatement
@@ -78,17 +83,35 @@ varDeclarationStatement
     ;
 
 varDeclaration
-   	: 'var' name=Identifier ':' nonVoidType '=' expr
+   	: 'var' name=Identifier ':' primitiveType '=' expr #primitiveDeclaration
+   	| 'var' name=Identifier ';' arrayType '=' arrayInitializer #arrayDeclaration
    	;
+
+arrayInitializer
+	: primitiveType + ('[' size=expr ']')+
+	;
 
 nopStatement
     : Nop ';'
     ;
 
 nonVoidType
-   	: 'int'
-   	| 'bool'
-   	| 'str'
+	: primitiveType
+   	| arrayType
+	;
+
+primitiveType
+	: 'int'
+    | 'bool'
+    | 'str'
+    ;
+
+arrayType
+	: primitiveType dims
+	;
+
+dims
+	: ('['']')+
 	;
 
 voidType
@@ -101,6 +124,7 @@ expr
    	| boolLiteral # eXPRLiteral
    	| stringLiteral # eXPRLiteral
    	| variableName # eXPRVarName
+   	| arrayGetter # eXPRArrayGetter
    	| op=('+'|'-') expr # eXPRUnary
    	| op='!' expr # eXPRUnary
    	| <assoc=left> left=expr op=('/'|'%'|'*') right=expr # eXPRBinary
@@ -112,6 +136,10 @@ expr
    	| readCall # eXPRReadCall
    	| functionCall # eXPRFunctionCall
     ;
+
+arrayGetter
+	: name=Identifier ('[' index=expr ']')+
+	;
 
 functionCallStatement
     : functionCall ';'
