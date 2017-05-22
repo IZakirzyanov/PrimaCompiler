@@ -5,7 +5,7 @@ import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
-import java.util.HashMap
+import java.util.*
 
 abstract class ASTNode(val ctx: ParserRuleContext) {
     abstract fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>)

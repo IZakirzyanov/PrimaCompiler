@@ -1,8 +1,8 @@
 package izakirzyanov.compiler.ast
 
+import izakirzyanov.compiler.Scope
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.errors.CompileError.FunctionIsAlreadyDefined
-import izakirzyanov.compiler.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor

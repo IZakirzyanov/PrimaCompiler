@@ -1,7 +1,7 @@
 package izakirzyanov.compiler.ast
 
 sealed class Type {
-    abstract fun toJVMType() : String
+    abstract fun toJVMType(): String
 
     object Bool : Type() {
         override fun toJVMType(): String {
@@ -37,6 +37,7 @@ sealed class Type {
         override fun toJVMType(): String {
             throw RuntimeException("SHOULD NOT BE HERE! TYPE ERRORS MUST BE CAPTURED BEFORE")
         }
+
         override fun toString(): String {
             return "UNKNOWN"
         }

@@ -35,7 +35,7 @@ class Scope {
     }
 
     fun getType(name: String): Type? {
-        return scopesStack.findLast{it.containsKey(name)}?.get(name)?.first
+        return scopesStack.findLast { it.containsKey(name) }?.get(name)?.first
     }
 
     fun getVarNum(name: String): Int {

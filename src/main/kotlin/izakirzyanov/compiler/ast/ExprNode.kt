@@ -1,7 +1,7 @@
 package izakirzyanov.compiler.ast
 
-import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.Scope
+import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*

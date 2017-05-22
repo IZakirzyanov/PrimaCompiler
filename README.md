@@ -31,7 +31,7 @@ Entry point should be `fun main(): void`.
 
 ## Example
 Fast power computation:
-```
+```kotlin
 fun main(): void {
     writeln(binpow(readInt(), readInt()));
 }

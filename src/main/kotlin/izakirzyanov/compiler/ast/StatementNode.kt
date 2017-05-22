@@ -1,12 +1,12 @@
 package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.PrimaParser
-import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.Scope
+import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
-import java.util.*
 import org.objectweb.asm.Opcodes.*
+import java.util.*
 
 sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     abstract fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError>
