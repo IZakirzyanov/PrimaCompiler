@@ -11,12 +11,11 @@ class GlobalVarNode(val varNode : StatementNode.VarDeclarationNode, ctx: ParserR
         return varNode.checkForErrorsAndTypes(scope, functionsList)
     }
 
-    override fun generateByteCode(helper: ASMHelper) {
+    override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+        scope.putVariableWithOverride(varNode.name, varNode.type)
         //TODO: THINK ABOUT FINAL STATIC - CONSTANTS. LAST PARAMETER
         helper.cw.visitField(ACC_PUBLIC + ACC_STATIC, varNode.name, varNode.type.toJVMType(), null, null).visitEnd()
-        if (varNode.value != null) {
-            varNode.value.generateByteCode(helper)
-            helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, varNode.name, varNode.type.toJVMType())
-        }
+        varNode.value.generateByteCode(helper, scope, functionsList)
+        helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, varNode.name, varNode.type.toJVMType())
     }
 }

@@ -4,10 +4,11 @@ import izakirzyanov.compiler.ast.Type
 import java.util.*
 
 class Scope {
-    private val scopesStack: ArrayList<MutableMap<String, Type>> = ArrayList()
+    private val scopesStack: ArrayList<MutableMap<String, Pair<Type, Int>>> = ArrayList()
+    var varNums: Int = 1
 
     init {
-        scopesStack.add(HashMap<String, Type>())
+        scopesStack.add(HashMap<String, Pair<Type, Int>>())
     }
 
     fun beginNewScope() {
@@ -18,16 +19,12 @@ class Scope {
         scopesStack.removeAt(scopesStack.lastIndex)
     }
 
-    fun putVariableWithCheck(name: String, type: Type): Boolean {
-        if (scopesStack.last()[name] != null) {
-            return false
-        }
-        scopesStack.last()[name] = type
-        return true
+    fun resetVarNums() {
+        varNums = 0
     }
 
     fun putVariableWithOverride(name: String, type: Type) {
-        scopesStack.last()[name] = type
+        scopesStack.last()[name] = type to varNums++
     }
 
     fun definedInTheLastScope(name: String): Boolean {
@@ -37,7 +34,15 @@ class Scope {
         return false
     }
 
-    operator fun get(name: String): Type? {
-        return scopesStack.findLast{it.containsKey(name)}?.get(name)
+    fun getType(name: String): Type? {
+        return scopesStack.findLast{it.containsKey(name)}?.get(name)?.first
+    }
+
+    fun getVarNum(name: String): Int {
+        return scopesStack.findLast { it.containsKey(name) }!![name]!!.second
+    }
+
+    fun isGlobal(name: String): Boolean {
+        return scopesStack.findLast { it.containsKey(name) } == scopesStack.first()
     }
 }

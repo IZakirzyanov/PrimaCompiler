@@ -16,7 +16,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         val varDeclarationContext = ctx.varDeclarationStatement().varDeclaration()
         val name = varDeclarationContext.name.text
         val type = varDeclarationContext.nonVoidType().text.toTypeNode()
-        val expr = varDeclarationContext.expr()?.let { visitEXPR(it) }
+        val expr = varDeclarationContext.expr().let { visitEXPR(it) }
         return GlobalVarNode(VarDeclarationNode(name, type, expr, varDeclarationContext), ctx)
     }
 
@@ -68,7 +68,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     override fun visitVarDeclaration(ctx: PrimaParser.VarDeclarationContext): VarDeclarationNode {
         val name = ctx.name.text
         val type = ctx.nonVoidType().text.toTypeNode()
-        val value = ctx.expr()?.let { visitEXPR(it) }
+        val value = ctx.expr().let { visitEXPR(it) }
         return VarDeclarationNode(name, type, value, ctx)
     }
 

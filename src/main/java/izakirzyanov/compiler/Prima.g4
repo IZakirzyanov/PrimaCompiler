@@ -78,7 +78,7 @@ varDeclarationStatement
     ;
 
 varDeclaration
-   	: name=Identifier ':' nonVoidType ('=' expr)?
+   	: name=Identifier ':' nonVoidType '=' expr
    	;
 
 nopStatement

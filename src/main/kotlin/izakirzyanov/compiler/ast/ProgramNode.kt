@@ -54,14 +54,16 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
     }
 
     fun getByteCode(className: String): ByteArray {
+        val scope = Scope()
+        val functionsList = HashMap<String, FunctionNode>()
         val cw = ClassWriter(ClassWriter.COMPUTE_FRAMES)
         val fv: FieldVisitor? = null
         val mv: MethodVisitor? = null
-        generateByteCode(ASMHelper(cw, fv, mv, className))
+        generateByteCode(ASMHelper(cw, fv, mv, className), scope, functionsList)
         return cw.toByteArray()
     }
 
-    override fun generateByteCode(helper: ASMHelper) {
+    override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
         helper.cw.visit(V1_7, ACC_PUBLIC + ACC_SUPER, helper.className, null, "java/lang/Object", null)
         helper.mv = helper.cw.visitMethod(0, "<init>", "()V", null, null)
         helper.mv!!.visitCode()
@@ -71,18 +73,17 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
         helper.mv!!.visitMaxs(0, 0)
         helper.mv!!.visitEnd()
 
-        if (globalVars.fold(false, { acc, globalVarNode -> acc || (globalVarNode.varNode.value != null)})) {
+        if (globalVars.isNotEmpty()) {
             helper.mv = helper.cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "<clinit>", "()V", null, null)
             helper.mv!!.visitCode()
-            globalVars.forEach { it.generateByteCode(helper) }
+            globalVars.forEach { it.generateByteCode(helper, scope, functionsList) }
             helper.mv!!.visitInsn(RETURN)
             helper.mv!!.visitMaxs(0, 0)
             helper.mv!!.visitEnd()
-        } else {
-            globalVars.forEach { it.generateByteCode(helper) }
         }
 
-        functions.forEach { it.generateByteCode(helper) }
+        functions.forEach { functionsList.put(it.signature.name, it) }
+        functions.forEach { it.generateByteCode(helper, scope, functionsList) }
 
         helper.cw.visitEnd()
     }

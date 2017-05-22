@@ -2,5 +2,5 @@ package izakirzyanov.compiler
 
 fun main(args: Array<String>) {
     val compiler = Compiler()
-    compiler.compile("hw.prima")
+    compiler.compile("binPow.prima")
 }

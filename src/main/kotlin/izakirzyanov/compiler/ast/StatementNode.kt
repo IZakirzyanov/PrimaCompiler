@@ -1,8 +1,10 @@
 package izakirzyanov.compiler.ast
 
+import izakirzyanov.compiler.PrimaParser
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.Scope
 import org.antlr.v4.runtime.ParserRuleContext
+import org.objectweb.asm.Label
 import java.util.*
 import org.objectweb.asm.Opcodes.*
 
@@ -14,15 +16,15 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             return emptyList()
         }
 
-        override fun generateByteCode(helper: ASMHelper) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {}
     }
 
     class BlockNode(val statements: List<StatementNode>? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
 
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            scope.beginNewScope()
+            if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
+                scope.beginNewScope()
+            }
             val errors = ArrayList<CompileError>()
             statements?.forEach {
                 if (it is ReturnNode && it != statements.last()) {
@@ -30,7 +32,9 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                 }
                 errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
             }
-            scope.endScope()
+            if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
+                scope.endScope()
+            }
             return errors
         }
 
@@ -69,30 +73,36 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             return false
         }
 
-        override fun generateByteCode(helper: ASMHelper) {
-            statements?.forEach { it.generateByteCode(helper) }
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+            if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
+                scope.beginNewScope()
+            }
+            statements?.forEach { it.generateByteCode(helper, scope, functionsList) }
+            if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
+                scope.endScope()
+            }
         }
     }
 
-    class VarDeclarationNode(val name: String, val type: Type, val value: ExprNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
+    class VarDeclarationNode(val name: String, val type: Type, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
             if (scope.definedInTheLastScope(name)) {
                 errors.add(CompileError.VariableIsAlreadyDefinedInThisScope(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
             } else {
                 scope.putVariableWithOverride(name, type)
-                if (value != null) {
-                    errors.addAll(value.checkForErrorsAndInferType(scope, functionsList))
-                    if (type != value.type) {
-                        errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
-                    }
+                errors.addAll(value.checkForErrorsAndInferType(scope, functionsList))
+                if (type != value.type) {
+                    errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
                 }
             }
             return errors
         }
 
-        override fun generateByteCode(helper: ASMHelper) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+            scope.putVariableWithOverride(name, type)
+            value.generateByteCode(helper, scope, functionsList)
+            helper.mv!!.visitVarInsn(ISTORE, scope.getVarNum(name))
         }
     }
 
@@ -100,7 +110,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
             errors.addAll(value.checkForErrorsAndInferType(scope, functionsList))
-            val type = scope[name]
+            val type = scope.getType(name)
             if (type == null) {
                 errors.add(CompileError.VariableIsNotDefined(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
             } else if (value.type != type) {
@@ -109,8 +119,13 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             return errors
         }
 
-        override fun generateByteCode(helper: ASMHelper) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+            value.generateByteCode(helper, scope, functionsList)
+            if (scope.isGlobal(name)) {
+                helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, name, scope.getType(name)?.toJVMType())
+            } else {
+                helper.mv!!.visitVarInsn(ISTORE, scope.getVarNum(name))
+            }
         }
     }
 
@@ -138,8 +153,13 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             return thenBlock.alwaysReturns() && (elseBlock?.alwaysReturns() ?: true)
         }
 
-        override fun generateByteCode(helper: ASMHelper) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+            condition.generateByteCode(helper, scope, functionsList)
+            val l0 = Label()
+            helper.mv!!.visitJumpInsn(IFEQ, l0)
+            thenBlock.generateByteCode(helper, scope, functionsList)
+            helper.mv!!.visitLabel(l0)
+            elseBlock?.generateByteCode(helper, scope, functionsList)
         }
     }
 
@@ -163,8 +183,15 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             return body.alwaysReturns()
         }
 
-        override fun generateByteCode(helper: ASMHelper) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+            val l0 = Label()
+            helper.mv!!.visitLabel(l0)
+            condition.generateByteCode(helper, scope, functionsList)
+            val l1 = Label()
+            helper.mv!!.visitJumpInsn(IFEQ, l1)
+            body.generateByteCode(helper, scope, functionsList)
+            helper.mv!!.visitJumpInsn(GOTO, l0)
+            helper.mv!!.visitLabel(l1)
         }
     }
 
@@ -173,15 +200,15 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             return value?.checkForErrorsAndInferType(scope, functionsList) ?: emptyList()
         }
 
-        override fun generateByteCode(helper: ASMHelper) {
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
             if (nextLine) {
                 helper.mv!!.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
-                value?.generateByteCode(helper)
+                value?.generateByteCode(helper, scope, functionsList)
                 helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(" + (value?.type?.toJVMType() ?: "") + ")V", false)
             } else {
                 if (value != null) {
                     helper.mv!!.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
-                    value.generateByteCode(helper)
+                    value.generateByteCode(helper, scope, functionsList)
                     helper.mv!!.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "print", "(" + value.type.toJVMType() + ")V", false)
                 }
             }
@@ -206,8 +233,9 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             funName = name
         }
 
-        override fun generateByteCode(helper: ASMHelper) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+            value.generateByteCode(helper, scope, functionsList)
+            helper.mv!!.visitInsn(IRETURN)
         }
     }
 
@@ -235,9 +263,13 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             }
             return errors
         }
-    }
 
-    override fun generateByteCode(helper: ASMHelper) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+            arguments?.forEach { it.generateByteCode(helper, scope, functionsList) }
+            helper.mv!!.visitMethodInsn(INVOKESTATIC, helper.className, name, functionsList[name]?.signature?.toJVMType(), false)
+            if (functionsList[name]?.signature?.type != Type.Void) {
+                helper.mv!!.visitInsn(POP)
+            }
+        }
     }
 }
