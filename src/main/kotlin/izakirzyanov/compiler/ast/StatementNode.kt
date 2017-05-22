@@ -150,7 +150,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         }
 
         fun alwaysReturns(): Boolean {
-            return thenBlock.alwaysReturns() && (elseBlock?.alwaysReturns() ?: true)
+            return thenBlock.alwaysReturns() && (elseBlock?.alwaysReturns() ?: false)
         }
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
@@ -180,7 +180,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         }
 
         fun alwaysReturns(): Boolean {
-            return body.alwaysReturns()
+            return false;
         }
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
