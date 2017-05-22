@@ -30,6 +30,7 @@ class Compiler {
     fun compile(fileName: String) {
         if (!fileName.endsWith(".prima")) {
             System.err.println("file name should be \"[name].prima\"")
+            System.exit(1)
         }
         val program = parse(fileName)
         val errors = program.checkForErrorsAndTypes()
