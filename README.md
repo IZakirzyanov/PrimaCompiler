@@ -40,7 +40,7 @@ fun main(): void {
 }
 
 fun binpow(a: int, n: int): int {
-    res: int = 1;
+    var res: int = 1;
     while (n > 0) {
         if (n % 2 == 1) {
             res = res * a;
