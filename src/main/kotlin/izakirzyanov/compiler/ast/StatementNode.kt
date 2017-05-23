@@ -112,9 +112,19 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         }
     }
 
-    class ArrayVarDeclarationNode(val name: String, val type: Type, val primitiveType: Type, val indices: List<ExprNode>?, ctx: ParserRuleContext) : VarDeclarationNode(ctx) {
+    class ArrayVarDeclarationNode(val name: String, val type: Type.Arr<*>, val constructorPrimitiveType: Type, val sizes: List<ExprNode>, ctx: ParserRuleContext) : VarDeclarationNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            val errors = ArrayList<CompileError>()
+            if (scope.definedInTheLastScope(name)) {
+                errors.add(CompileError.VariableIsAlreadyDefinedInThisScope(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            } else {
+                val expected = type.getPrimitiveType()
+                if (expected != constructorPrimitiveType || sizes.size != type.getArrayDepth()) {
+                    errors.add(CompileError.ConstructorTypeMismatch(name, Type.Arr.buildArrType(constructorPrimitiveType, sizes.size), expected, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                }
+                scope.putVariableWithOverride(name, type)
+            }
+            return errors
         }
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
@@ -152,7 +162,24 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
 
     class ArraySetterNode(val name: String, val indices: List<ExprNode>, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            val errors = ArrayList<CompileError>()
+            errors.addAll(value.checkForErrorsAndInferType(scope, functionsList))
+            val fullType = scope.getType(name)
+            if (fullType == null) {
+                errors.add(CompileError.VariableIsNotDefined(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            } else {
+                if (fullType !is Type.Arr<*>) {
+                    errors.add(CompileError.VariableIsNotArray(name, fullType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                } else if (fullType.getArrayDepth() < indices.size) {
+                    errors.add(CompileError.VariableIsNotArray(Type.Arr.buildArrCall(name, indices), fullType.getPrimitiveType(), ctx.getStart().line, ctx.getStart().charPositionInLine))
+                } else {
+                    val leftType = fullType.getSubType(indices)
+                    if (leftType != value.type) {
+                        errors.add(CompileError.VariableTypeMismatch(name, value.type, leftType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                    }
+                }
+            }
+            return errors
         }
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
@@ -231,7 +258,13 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
 
     class WriteNode(val nextLine: Boolean = true, val value: ExprNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            return value?.checkForErrorsAndInferType(scope, functionsList) ?: emptyList()
+            val errors = ArrayList<CompileError>()
+            errors.addAll(value?.checkForErrorsAndInferType(scope, functionsList) ?: emptyList())
+            val valType = value?.type
+            if (valType!= null && !valType.isPrimitive) {
+                errors.add(CompileError.WriteIsNotDefinedForNonPrimitiveTypes(valType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            }
+            return errors
         }
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {

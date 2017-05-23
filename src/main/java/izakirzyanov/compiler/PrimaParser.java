@@ -41,7 +41,7 @@ public class PrimaParser extends Parser {
 		"functionArguments", "functionArg", "block", "type", "statement", "assignmentStatement", 
 		"assignment", "arraySetterStatement", "ifStatement", "whileStatement", 
 		"readCall", "writeStatement", "returnStatement", "varDeclarationStatement", 
-		"varDeclaration", "arrayInitializer", "nopStatement", "nonVoidType", "primitiveType", 
+		"varDeclaration", "arrayInitializer", "nopStatement", "nonVoidType", "constructorPrimitiveType",
 		"arrayType", "dims", "voidType", "expr", "arrayGetter", "functionCallStatement", 
 		"functionCall", "argumentList", "intLiteral", "boolLiteral", "stringLiteral", 
 		"variableName"

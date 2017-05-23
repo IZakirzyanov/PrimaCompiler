@@ -7,7 +7,7 @@ import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
-sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
+abstract class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
     abstract fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError>
     open lateinit var type: Type
 
@@ -19,9 +19,26 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             errors.addAll(right.checkForErrorsAndInferType(scope, functionsList))
             when (op) {
                 is Op.EqualityOp -> {
-                    type = Type.Bool
+                    if (!left.type.isPrimitive) {
+                        errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
+                        type = Type.Unknown
+                    }
+                    if (!right.type.isPrimitive) {
+                        errors.add(CompileError.UnsupportedOperator(op, right.type, right.ctx.text, right.ctx.getStart().line, right.ctx.getStart().charPositionInLine))
+                        type = Type.Unknown
+                    } else {
+                        type = Type.Bool
+                    }
                 }
                 is Op.Plus -> {
+                    if (left.type != Type.Integer || left.type != Type.Str) {
+                        errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
+                        type = Type.Unknown
+                    }
+                    if (right.type != Type.Integer || right.type != Type.Str) {
+                        errors.add(CompileError.UnsupportedOperator(op, right.type, right.ctx.text, right.ctx.getStart().line, right.ctx.getStart().charPositionInLine))
+                        type = Type.Unknown
+                    }
                     if (left.type == Type.Integer && right.type == Type.Integer) {
                         type = Type.Integer
                     } else if (left.type == Type.Str && right.type == Type.Str) {
@@ -408,7 +425,19 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
 
     class ArrayGetterNode(val name: String, val indices: List<ExprNode>, ctx: ParserRuleContext) : ExprNode(ctx) {
         override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            val errors = ArrayList<CompileError>()
+            val fullType = scope.getType(name)
+            if (fullType == null) {
+                errors.add(CompileError.VariableIsNotDefined(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            } else {
+                if (fullType !is Type.Arr<*>) {
+                    errors.add(CompileError.VariableIsNotArray(name, fullType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                } else if (fullType.getArrayDepth() < indices.size) {
+                    errors.add(CompileError.VariableIsNotArray(Type.Arr.buildArrCall(name, indices), fullType.getPrimitiveType(), ctx.getStart().line, ctx.getStart().charPositionInLine))
+                }
+            }
+            type = (fullType as? Type.Arr<*>)?.getSubType(indices) ?: Type.Unknown
+            return errors
         }
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {

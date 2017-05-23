@@ -3,6 +3,13 @@ package izakirzyanov.compiler.ast
 sealed class Type {
     abstract fun toJVMType(): String
 
+    fun getPrimitiveType(): Type {
+        return when (this) {
+            is Arr<*> -> this.type.getPrimitiveType()
+            else -> this
+        }
+    }
+
     object Bool : Type() {
         override fun toJVMType(): String {
             return "Z"
@@ -43,9 +50,49 @@ sealed class Type {
         }
     }
 
-    class Arr<out T: Type>(val type: T) : Type() {
+    class Arr<out T : Type>(val type: T) : Type() {
         override fun toJVMType(): String {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        companion object {
+            fun buildArrType(type: Type, depth: Int): Type {
+                var _type = type
+                for (i in 1..depth) {
+                    _type = Arr(type)
+                }
+                return _type
+            }
+
+            fun buildArrCall(name: String, indices: List<ExprNode>): String {
+                return name + indices.map { "[" + it.ctx.text + "]" }.joinToString { "" }
+            }
+        }
+
+        fun getArrayDepth(): Int {
+            var depth = 0
+            var curType: Type = this
+            while (curType is Arr<*>) {
+                curType = curType.type
+                depth++
+            }
+            return depth
+        }
+
+        fun getSubType(indices: List<ExprNode>): Type {
+            var type: Type = this
+            indices.forEach {
+                if (type is Arr<*>) {
+                    type = (type as Arr<*>).type
+                } else {
+                    throw RuntimeException("SHOULDN'T BE HERE! TOO MUCH GETTERS")
+                }
+            }
+            return type
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return this.toString() == other.toString()
         }
 
         override fun toString(): String {

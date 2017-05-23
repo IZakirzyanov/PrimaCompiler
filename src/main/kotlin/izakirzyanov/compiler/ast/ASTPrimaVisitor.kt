@@ -2,8 +2,8 @@ package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.PrimaBaseVisitor
 import izakirzyanov.compiler.PrimaParser
-import izakirzyanov.compiler.ast.ExprNode.*
 import izakirzyanov.compiler.ast.StatementNode.*
+import izakirzyanov.compiler.ast.ExprNode.*
 
 class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: PrimaParser.ProgramContext): ProgramNode {
@@ -77,7 +77,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     override fun visitArrayDeclaration(ctx: PrimaParser.ArrayDeclarationContext): ArrayVarDeclarationNode {
         return ArrayVarDeclarationNode(
                 ctx.name.text,
-                ctx.arrayType().text.toTypeNode(),
+                ctx.arrayType().text.toTypeNode() as Type.Arr<*>,
                 ctx.arrayInitializer().primitiveType().text.toTypeNode(),
                 ctx.arrayInitializer().sizes.map { visitEXPR(it) }.toList(),
                 ctx
