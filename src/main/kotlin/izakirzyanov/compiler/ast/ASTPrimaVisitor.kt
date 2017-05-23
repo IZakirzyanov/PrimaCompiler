@@ -13,15 +13,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitGlobalVarDeclaration(ctx: PrimaParser.GlobalVarDeclarationContext): GlobalVarNode {
-        return when (ctx.varDeclarationStatement().varDeclaration()) {
-            is PrimaParser.PrimitiveDeclarationContext -> visitPrimitiveDeclaration(ctx.varDeclarationStatement().varDeclaration())
-            is PrimaParser.ArrayDeclarationContext -> visitArrayDeclaration(ctx.varDeclarationStatement().varDeclaration())
-            else -> throw RuntimeException("This should never happen")
-        }
-    }
-
-    override fun visitPrimitiveDeclaration(ctx: PrimaParser.PrimitiveDeclarationContext): GlobalVarNode {
-        return GlobalVarNode(PrimitiveVarDeclarationNode(ctx.name.text, ctx.primitiveType().text.toTypeNode(), visitEXPR(ctx.expr()), ctx))
+        return GlobalVarNode(visitVarDeclaration(ctx.varDeclarationStatement().varDeclaration()), ctx)
     }
 
     override fun visitFunctionDeclaration(ctx: PrimaParser.FunctionDeclarationContext): FunctionNode {
@@ -69,11 +61,26 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         return visitVarDeclaration(ctx.varDeclaration())
     }
 
-    override fun visitVarDeclaration(ctx: PrimaParser.VarDeclarationContext): PrimitiveVarDeclarationNode {
-        val name = ctx.name.text
-        val type = ctx.nonVoidType().text.toTypeNode()
-        val value = ctx.expr().let { visitEXPR(it) }
-        return PrimitiveVarDeclarationNode(name, type, value, ctx)
+    fun visitVarDeclaration(ctx: PrimaParser.VarDeclarationContext): VarDeclarationNode {
+        return when(ctx) {
+            is PrimaParser.PrimitiveDeclarationContext -> visitPrimitiveDeclaration(ctx)
+            is PrimaParser.ArrayDeclarationContext -> visitArrayDeclaration(ctx)
+            else -> throw RuntimeException("This should never happen")
+        }
+    }
+
+    override fun visitPrimitiveDeclaration(ctx: PrimaParser.PrimitiveDeclarationContext): PrimitiveVarDeclarationNode {
+        return PrimitiveVarDeclarationNode(ctx.name.text, ctx.primitiveType().text.toTypeNode(), visitEXPR(ctx.expr()), ctx)
+    }
+
+    override fun visitArrayDeclaration(ctx: PrimaParser.ArrayDeclarationContext): ArrayVarDeclarationNode {
+        return ArrayVarDeclarationNode(
+                ctx.name.text,
+                ctx.arrayType().text.toTypeNode(),
+                ctx.arrayInitializer().primitiveType().text.toTypeNode(),
+                ctx.arrayInitializer().expr().map { visitEXPR(it) }.toList(),
+                ctx
+        )
     }
 
     override fun visitAssignmentStatement(ctx: PrimaParser.AssignmentStatementContext): AssignmentNode {

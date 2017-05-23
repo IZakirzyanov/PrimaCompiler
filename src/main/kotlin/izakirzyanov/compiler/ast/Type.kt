@@ -43,6 +43,16 @@ sealed class Type {
         }
     }
 
+    class Arr<out T: Type>(val type: T) : Type() {
+        override fun toJVMType(): String {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun toString(): String {
+            return type.toString() + "[]"
+        }
+    }
+
     object Unknown : Type() {
         override fun toJVMType(): String {
             throw RuntimeException("SHOULD NOT BE HERE! TYPE ERRORS MUST BE CAPTURED BEFORE")
@@ -64,6 +74,12 @@ fun String.toTypeNode(): Type {
         "int" -> Type.Integer
         "void" -> Type.Void
         "str" -> Type.Str
-        else -> throw RuntimeException("SHOULDN'T BE HERE. PARSER SHOULDN'T PARSE YOUR CODE. $this IS NOT A TYPE. HOW YOU DID THIS?")
+        else -> {
+            if (this.endsWith("[]")) {
+                Type.Arr(this.dropLast(2).toTypeNode())
+            } else {
+                throw RuntimeException("SHOULDN'T BE HERE. PARSER SHOULDN'T PARSE YOUR CODE. $this IS NOT A TYPE. HOW YOU DID THIS?")
+            }
+        }
     }
 }

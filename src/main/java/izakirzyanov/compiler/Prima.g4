@@ -88,7 +88,7 @@ varDeclaration
    	;
 
 arrayInitializer
-	: primitiveType + ('[' size=expr ']')+
+	: primitiveType ('[' size=expr ']')+
 	;
 
 nopStatement

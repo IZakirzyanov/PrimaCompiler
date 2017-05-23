@@ -84,7 +84,9 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         }
     }
 
-    class PrimitiveVarDeclarationNode(val name: String, val type: Type, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
+    abstract class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx)
+
+    class PrimitiveVarDeclarationNode(val name: String, val type: Type, val value: ExprNode, ctx: ParserRuleContext) : VarDeclarationNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
             if (scope.definedInTheLastScope(name)) {
@@ -110,7 +112,7 @@ sealed class StatementNode(ctx: ParserRuleContext) : ASTNode(ctx) {
         }
     }
 
-    class ArrayVarDeclarationNode(val name: String, val type: Type, val primitiveType: Type, val indices: List<ExprNode>?, ctx: ParserRuleContext) : StatementNode(ctx) {
+    class ArrayVarDeclarationNode(val name: String, val type: Type, val primitiveType: Type, val indices: List<ExprNode>?, ctx: ParserRuleContext) : VarDeclarationNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
