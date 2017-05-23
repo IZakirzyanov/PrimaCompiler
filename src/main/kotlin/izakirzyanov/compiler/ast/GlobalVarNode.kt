@@ -6,15 +6,15 @@ import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
-class GlobalVarNode(val primitiveVarNode: StatementNode.PrimitiveVarDeclarationNode, ctx: ParserRuleContext) : ASTNode(ctx) {
+class GlobalVarNode(val varNode: StatementNode.VarDeclarationNode, ctx: ParserRuleContext) : ASTNode(ctx) {
     fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): Collection<CompileError> {
-        return primitiveVarNode.checkForErrorsAndTypes(scope, functionsList)
+        return varNode.checkForErrorsAndTypes(scope, functionsList)
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
-        scope.putVariableWithOverride(primitiveVarNode.name, primitiveVarNode.type)
-        helper.cw.visitField(ACC_PUBLIC + ACC_STATIC, primitiveVarNode.name, primitiveVarNode.type.toJVMType(), null, null).visitEnd()
-        primitiveVarNode.value.generateByteCode(helper, scope, functionsList)
-        helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, primitiveVarNode.name, primitiveVarNode.type.toJVMType())
+        scope.putVariableWithOverride(varNode.name, varNode.type)
+        helper.cw.visitField(ACC_PUBLIC + ACC_STATIC, varNode.name, varNode.type.toJVMType(), null, null).visitEnd()
+        varNode.value.generateByteCode(helper, scope, functionsList)
+        helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, varNode.name, varNode.type.toJVMType())
     }
 }

@@ -55,7 +55,7 @@ assignment
     ;
 
 arraySetterStatement
-    : name=Identifier ('['index=expr']')+ '=' value=expr
+    : name=Identifier ('['indices+=expr']')+ '=' value=expr
     ;
 
 ifStatement
@@ -88,7 +88,7 @@ varDeclaration
    	;
 
 arrayInitializer
-	: primitiveType ('[' size=expr ']')+
+	: primitiveType ('[' sizes+=expr ']')+
 	;
 
 nopStatement
@@ -138,7 +138,7 @@ expr
     ;
 
 arrayGetter
-	: name=Identifier ('[' index=expr ']')+
+	: name=Identifier ('[' indices+=expr ']')+
 	;
 
 functionCallStatement

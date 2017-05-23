@@ -296,6 +296,7 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
             init {
                 type = Type.Str
             }
+
             override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
                 return emptyList()
             }
@@ -403,6 +404,15 @@ sealed class ExprNode(ctx: ParserRuleContext) : ASTNode(ctx) {
                 }
             }
         }
+    }
 
+    class ArrayGetterNode(val name: String, val indices: List<ExprNode>, ctx: ParserRuleContext) : ExprNode(ctx) {
+        override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
     }
 }

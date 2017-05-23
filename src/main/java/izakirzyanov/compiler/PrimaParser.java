@@ -1,4 +1,4 @@
-// Generated from D:/hw/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
+// Generated from D:/prog/studying/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
 package izakirzyanov.compiler;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -833,7 +833,8 @@ public class PrimaParser extends Parser {
 
 	public static class ArraySetterStatementContext extends ParserRuleContext {
 		public Token name;
-		public ExprContext index;
+		public ExprContext expr;
+		public List<ExprContext> indices = new ArrayList<ExprContext>();
 		public ExprContext value;
 		public TerminalNode Identifier() { return getToken(PrimaParser.Identifier, 0); }
 		public List<ExprContext> expr() {
@@ -879,7 +880,8 @@ public class PrimaParser extends Parser {
 				setState(136);
 				match(T__9);
 				setState(137);
-				((ArraySetterStatementContext)_localctx).index = expr(0);
+				((ArraySetterStatementContext)_localctx).expr = expr(0);
+				((ArraySetterStatementContext)_localctx).indices.add(((ArraySetterStatementContext)_localctx).expr);
 				setState(138);
 				match(T__10);
 				}
@@ -1382,7 +1384,8 @@ public class PrimaParser extends Parser {
 	}
 
 	public static class ArrayInitializerContext extends ParserRuleContext {
-		public ExprContext size;
+		public ExprContext expr;
+		public List<ExprContext> sizes = new ArrayList<ExprContext>();
 		public PrimitiveTypeContext primitiveType() {
 			return getRuleContext(PrimitiveTypeContext.class,0);
 		}
@@ -1429,7 +1432,8 @@ public class PrimaParser extends Parser {
 				setState(201);
 				match(T__9);
 				setState(202);
-				((ArrayInitializerContext)_localctx).size = expr(0);
+				((ArrayInitializerContext)_localctx).expr = expr(0);
+				((ArrayInitializerContext)_localctx).sizes.add(((ArrayInitializerContext)_localctx).expr);
 				setState(203);
 				match(T__10);
 				}
@@ -2204,7 +2208,8 @@ public class PrimaParser extends Parser {
 
 	public static class ArrayGetterContext extends ParserRuleContext {
 		public Token name;
-		public ExprContext index;
+		public ExprContext expr;
+		public List<ExprContext> indices = new ArrayList<ExprContext>();
 		public TerminalNode Identifier() { return getToken(PrimaParser.Identifier, 0); }
 		public List<ExprContext> expr() {
 			return getRuleContexts(ExprContext.class);
@@ -2251,7 +2256,8 @@ public class PrimaParser extends Parser {
 					setState(271);
 					match(T__9);
 					setState(272);
-					((ArrayGetterContext)_localctx).index = expr(0);
+					((ArrayGetterContext)_localctx).expr = expr(0);
+					((ArrayGetterContext)_localctx).indices.add(((ArrayGetterContext)_localctx).expr);
 					setState(273);
 					match(T__10);
 					}

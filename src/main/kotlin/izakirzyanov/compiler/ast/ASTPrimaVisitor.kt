@@ -57,7 +57,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         return BlockNode(statements, ctx)
     }
 
-    override fun visitVarDeclarationStatement(ctx: PrimaParser.VarDeclarationStatementContext): PrimitiveVarDeclarationNode {
+    override fun visitVarDeclarationStatement(ctx: PrimaParser.VarDeclarationStatementContext): VarDeclarationNode {
         return visitVarDeclaration(ctx.varDeclaration())
     }
 
@@ -78,9 +78,13 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
                 ctx.name.text,
                 ctx.arrayType().text.toTypeNode(),
                 ctx.arrayInitializer().primitiveType().text.toTypeNode(),
-                ctx.arrayInitializer().expr().map { visitEXPR(it) }.toList(),
+                ctx.arrayInitializer().sizes.map { visitEXPR(it) }.toList(),
                 ctx
         )
+    }
+
+    override fun visitArraySetterStatement(ctx: PrimaParser.ArraySetterStatementContext): ArraySetterNode {
+        return ArraySetterNode(ctx.name.text, ctx.indices.map{ visitEXPR(it) }, visitEXPR(ctx.value), ctx)
     }
 
     override fun visitAssignmentStatement(ctx: PrimaParser.AssignmentStatementContext): AssignmentNode {
@@ -159,6 +163,10 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         return FunctionCallExprNode(name, arguments, ctx)
     }
 
+    override fun visitArrayGetter(ctx: PrimaParser.ArrayGetterContext): ArrayGetterNode {
+        return ArrayGetterNode(ctx.name.text, ctx.indices.map { visitEXPR(it) }, ctx)
+    }
+
     fun visitEXPR(ctx: PrimaParser.ExprContext): ExprNode {
         return when (ctx) {
             is PrimaParser.EXPRParenthesisContext -> visitEXPR(ctx.expr())
@@ -168,6 +176,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
             is PrimaParser.EXPRBinaryContext -> visitEXPRBinary(ctx)
             is PrimaParser.EXPRFunctionCallContext -> visitEXPRFunctionCall(ctx)
             is PrimaParser.EXPRReadCallContext -> visitEXPRReadCall(ctx)
+            is PrimaParser.EXPRArrayGetterContext -> visitArrayGetter(ctx.arrayGetter())
             else -> throw RuntimeException("This should never happen")
         }
     }
