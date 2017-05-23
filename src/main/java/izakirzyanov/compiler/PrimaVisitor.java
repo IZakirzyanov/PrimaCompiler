@@ -119,19 +119,19 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVarDeclarationStatement(PrimaParser.VarDeclarationStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code primitiveDeclaration}
-	 * labeled alternative in {@link PrimaParser#varDeclaration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code arrayDeclaration}
 	 * labeled alternative in {@link PrimaParser#varDeclaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitArrayDeclaration(PrimaParser.ArrayDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code primitiveDeclaration}
+	 * labeled alternative in {@link PrimaParser#varDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link PrimaParser#arrayInitializer}.
 	 * @param ctx the parse tree

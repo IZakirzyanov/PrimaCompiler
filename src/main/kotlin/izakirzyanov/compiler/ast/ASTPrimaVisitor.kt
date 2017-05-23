@@ -45,6 +45,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         if (ctx.writeStatement() != null) return visitWriteStatement(ctx.writeStatement())
         if (ctx.returnStatement() != null) return visitReturnStatement(ctx.returnStatement())
         if (ctx.functionCallStatement() != null) return visitFunctionCallStatement(ctx.functionCallStatement())
+        if (ctx.arraySetterStatement() != null) return visitArraySetterStatement(ctx.arraySetterStatement())
         throw RuntimeException("Shouldn't be HERE!")
     }
 

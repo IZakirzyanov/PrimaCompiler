@@ -143,14 +143,14 @@ public class PrimaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx) { return visitChildren(ctx); }
+	@Override public T visitArrayDeclaration(PrimaParser.ArrayDeclarationContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitArrayDeclaration(PrimaParser.ArrayDeclarationContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

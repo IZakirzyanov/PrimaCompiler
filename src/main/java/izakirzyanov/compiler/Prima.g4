@@ -55,7 +55,7 @@ assignment
     ;
 
 arraySetterStatement
-    : name=Identifier ('['indices+=expr']')+ '=' value=expr
+    : name=Identifier ('['indices+=expr']')+ '=' value=expr ';'
     ;
 
 ifStatement
@@ -83,8 +83,8 @@ varDeclarationStatement
     ;
 
 varDeclaration
-   	: 'var' name=Identifier ':' primitiveType '=' expr #primitiveDeclaration
-   	| 'var' name=Identifier ';' arrayType '=' arrayInitializer #arrayDeclaration
+   	: 'var' name=Identifier ':' arrayType '=' arrayInitializer #arrayDeclaration
+   	| 'var' name=Identifier ':' primitiveType '=' expr #primitiveDeclaration
    	;
 
 arrayInitializer

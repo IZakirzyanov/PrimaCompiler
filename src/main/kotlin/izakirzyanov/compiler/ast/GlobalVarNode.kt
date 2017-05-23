@@ -12,9 +12,11 @@ class GlobalVarNode(val varNode: StatementNode.VarDeclarationNode, ctx: ParserRu
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
-        scope.putVariableWithOverride(varNode.name, varNode.type)
-        helper.cw.visitField(ACC_PUBLIC + ACC_STATIC, varNode.name, varNode.type.toJVMType(), null, null).visitEnd()
-        varNode.value.generateByteCode(helper, scope, functionsList)
-        helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, varNode.name, varNode.type.toJVMType())
+        if (varNode is StatementNode.PrimitiveVarDeclarationNode) {
+            scope.putVariableWithOverride(varNode.name, varNode.type)
+            helper.cw.visitField(ACC_PUBLIC + ACC_STATIC, varNode.name, varNode.type.toJVMType(), null, null).visitEnd()
+            varNode.value.generateByteCode(helper, scope, functionsList)
+            helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, varNode.name, varNode.type.toJVMType())
+        }
     }
 }

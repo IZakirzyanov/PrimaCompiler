@@ -188,18 +188,6 @@ public interface PrimaListener extends ParseTreeListener {
 	 */
 	void exitVarDeclarationStatement(PrimaParser.VarDeclarationStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code primitiveDeclaration}
-	 * labeled alternative in {@link PrimaParser#varDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code primitiveDeclaration}
-	 * labeled alternative in {@link PrimaParser#varDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code arrayDeclaration}
 	 * labeled alternative in {@link PrimaParser#varDeclaration}.
 	 * @param ctx the parse tree
@@ -211,6 +199,18 @@ public interface PrimaListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArrayDeclaration(PrimaParser.ArrayDeclarationContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code primitiveDeclaration}
+	 * labeled alternative in {@link PrimaParser#varDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code primitiveDeclaration}
+	 * labeled alternative in {@link PrimaParser#varDeclaration}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link PrimaParser#arrayInitializer}.
 	 * @param ctx the parse tree

@@ -22,7 +22,7 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
         }
 
         functions.forEach {
-            if (it.signature.name == "readInt" || it.signature.name == "readBool" || it.signature.name == "write" || it.signature.name == "writeln") {
+            if (it.signature.name == "readInt" || it.signature.name == "readBool" || it.signature.name == "readStr" || it.signature.name == "write" || it.signature.name == "writeln") {
                 errors.add(FunctionIsAlreadyDefined(it.signature.name, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
             }
             if (!functionsList.containsKey(it.signature.name)) {
