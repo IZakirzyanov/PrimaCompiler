@@ -1,5 +1,7 @@
 package izakirzyanov.compiler.ast
 
+import izakirzyanov.compiler.ast.expr.ExprNode
+
 sealed class Type {
     abstract fun toJVMType(): String
 

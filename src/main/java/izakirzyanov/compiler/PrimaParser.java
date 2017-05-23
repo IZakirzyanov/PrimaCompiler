@@ -1,4 +1,4 @@
-// Generated from D:/prog/studying/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
+// Generated from D:/hw/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
 package izakirzyanov.compiler;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -41,7 +41,7 @@ public class PrimaParser extends Parser {
 		"functionArguments", "functionArg", "block", "type", "statement", "assignmentStatement", 
 		"assignment", "arraySetterStatement", "ifStatement", "whileStatement", 
 		"readCall", "writeStatement", "returnStatement", "varDeclarationStatement", 
-		"varDeclaration", "arrayInitializer", "nopStatement", "nonVoidType", "constructorPrimitiveType",
+		"varDeclaration", "arrayInitializer", "nopStatement", "nonVoidType", "primitiveType", 
 		"arrayType", "dims", "voidType", "expr", "arrayGetter", "functionCallStatement", 
 		"functionCall", "argumentList", "intLiteral", "boolLiteral", "stringLiteral", 
 		"variableName"

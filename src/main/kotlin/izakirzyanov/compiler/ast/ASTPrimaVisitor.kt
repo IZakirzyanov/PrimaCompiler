@@ -2,8 +2,8 @@ package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.PrimaBaseVisitor
 import izakirzyanov.compiler.PrimaParser
-import izakirzyanov.compiler.ast.StatementNode.*
-import izakirzyanov.compiler.ast.ExprNode.*
+import izakirzyanov.compiler.ast.expr.*
+import izakirzyanov.compiler.ast.statement.*
 
 class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: PrimaParser.ProgramContext): ProgramNode {
@@ -63,19 +63,19 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     fun visitVarDeclaration(ctx: PrimaParser.VarDeclarationContext): VarDeclarationNode {
-        return when(ctx) {
+        return when (ctx) {
             is PrimaParser.PrimitiveDeclarationContext -> visitPrimitiveDeclaration(ctx)
             is PrimaParser.ArrayDeclarationContext -> visitArrayDeclaration(ctx)
             else -> throw RuntimeException("This should never happen")
         }
     }
 
-    override fun visitPrimitiveDeclaration(ctx: PrimaParser.PrimitiveDeclarationContext): PrimitiveVarDeclarationNode {
-        return PrimitiveVarDeclarationNode(ctx.name.text, ctx.primitiveType().text.toTypeNode(), visitEXPR(ctx.expr()), ctx)
+    override fun visitPrimitiveDeclaration(ctx: PrimaParser.PrimitiveDeclarationContext): VarDeclarationNode.PrimitiveVarDeclarationNode {
+        return VarDeclarationNode.PrimitiveVarDeclarationNode(ctx.name.text, ctx.primitiveType().text.toTypeNode(), visitEXPR(ctx.expr()), ctx)
     }
 
-    override fun visitArrayDeclaration(ctx: PrimaParser.ArrayDeclarationContext): ArrayVarDeclarationNode {
-        return ArrayVarDeclarationNode(
+    override fun visitArrayDeclaration(ctx: PrimaParser.ArrayDeclarationContext): VarDeclarationNode.ArrayVarDeclarationNode {
+        return VarDeclarationNode.ArrayVarDeclarationNode(
                 ctx.name.text,
                 ctx.arrayType().text.toTypeNode() as Type.Arr<*>,
                 ctx.arrayInitializer().primitiveType().text.toTypeNode(),
@@ -85,7 +85,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitArraySetterStatement(ctx: PrimaParser.ArraySetterStatementContext): ArraySetterNode {
-        return ArraySetterNode(ctx.name.text, ctx.indices.map{ visitEXPR(it) }, visitEXPR(ctx.value), ctx)
+        return ArraySetterNode(ctx.name.text, ctx.indices.map { visitEXPR(it) }, visitEXPR(ctx.value), ctx)
     }
 
     override fun visitAssignmentStatement(ctx: PrimaParser.AssignmentStatementContext): AssignmentNode {
