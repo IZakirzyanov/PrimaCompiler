@@ -1,12 +1,14 @@
+var tenOfZero: int[] = int[10];
+
 fun main(): void {
 	var tenOfTenOfTen: int[][] = int[ten()][10];
-	var i: int = 0;
-    while (i < 10) {
+	for (var i: int = 0; i < 10; i = i + 1) {
         tenOfTenOfTen[i] = tenOfTen();
-        i = i + 1;
     }
+    writeln(tenOfTenOfTen[3][4]);
     tenOfTenOfTen[1][2] = 5;
     writeln(tenOfTenOfTen[1][2]);
+    writeln(tenOfZero[1]);
 }
 
 fun ten(): int {
@@ -15,10 +17,8 @@ fun ten(): int {
 
 fun tenOfTen(): int[] {
 	var tenOfTen: int[] = int[ten()];
-    var i: int = 0;
-    while (i < 10) {
+    for (var i: int = 0; i < 10; i = i + 1) {
         tenOfTen[i] = 10;
-        i = i + 1;
     }
 	return tenOfTen;
 }

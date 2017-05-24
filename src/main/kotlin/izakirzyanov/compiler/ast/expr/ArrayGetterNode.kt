@@ -29,7 +29,11 @@ class ArrayGetterNode(val name: String, val indices: List<ExprNode>, ctx: Parser
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
         var type = scope.getType(name)
-        helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum(name))
+        if (scope.isGlobal(name)) {
+            helper.mv!!.visitFieldInsn(GETSTATIC, helper.className, name, scope.getType(name)?.toJVMType())
+        } else {
+            helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum(name))
+        }
         indices.forEach {
             it.generateByteCode(helper, scope, functionsList)
             if (!(type as Type.Arr<*>).type.isPrimitive) {
