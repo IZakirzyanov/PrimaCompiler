@@ -1,0 +1,24 @@
+fun main(): void {
+	var tenOfTenOfTen: int[][] = int[ten()][10];
+	var i: int = 0;
+    while (i < 10) {
+        tenOfTenOfTen[i] = tenOfTen();
+        i = i + 1;
+    }
+    tenOfTenOfTen[1][2] = 5;
+    writeln(tenOfTenOfTen[1][2]);
+}
+
+fun ten(): int {
+	return 10;
+}
+
+fun tenOfTen(): int[] {
+	var tenOfTen: int[] = int[ten()];
+    var i: int = 0;
+    while (i < 10) {
+        tenOfTen[i] = 10;
+        i = i + 1;
+    }
+	return tenOfTen;
+}
