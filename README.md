@@ -12,7 +12,7 @@
     - `<`, `<=`, `>`, `>=` - `((int, int) -> bool)` 
     - `&&`, `||` - `((bool, bool) -> bool)`
     - `+` - `(str, str) -> str)`
-- `if`, `if-else` and `while` control-flow statements 
+- `if`, `if-else`, `while` and `for` control-flow statements 
 - `readInt`, `readBool`, `readStr`, `write` and `writeln` pre-built functions
 - `nop` 
 - user-defined functions (without overloading)
@@ -31,6 +31,8 @@ Primitive type variable's declaration syntax (all variables are mutable): `var N
 Array variable's declaration syntax (all variables are mutable): `var N:T[] = T[size]`, where `T: Primitive | T[]`.
 
 Function's declaration syntax: `fun [main]([N1]:[T1], ... ,[Nn]:[Tn]): type {}`.
+
+`for` structure: `for( (VAR_DECLARATION|VAR_ASSIGNMENT)?; expr; VAR_ASSIGNMENT?)`
 
 Entry point should be `fun main(): void`.
 
@@ -79,10 +81,8 @@ Some arrays stuff:
 ```kotlin
 fun main(): void {
 	var tenOfTenOfTen: int[][] = int[ten()][10];
-	var i: int = 0;
-    while (i < 10) {
+	for (var i: int = 0; i < 10; i = i + 1) {
         tenOfTenOfTen[i] = tenOfTen();
-        i = i + 1;
     }
     tenOfTenOfTen[1][2] = 5;
     writeln(tenOfTenOfTen[1][2]);
@@ -94,10 +94,8 @@ fun ten(): int {
 
 fun tenOfTen(): int[] {
 	var tenOfTen: int[] = int[ten()];
-    var i: int = 0;
-    while (i < 10) {
+    for (var i: int = 0; i < 10; i = i + 1) {
         tenOfTen[i] = 10;
-        i = i + 1;
     }
 	return tenOfTen;
 }
