@@ -32,9 +32,9 @@ class ReturnNode(val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ct
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
         value.generateByteCode(helper, scope, functionsList)
-        if (value.type.isPrimitive) {
+        if (value.type == Type.Integer || value.type == Type.Bool) {
             helper.mv!!.visitInsn(IRETURN)
-        } else {
+        } else if (value.type == Type.Str || value.type is Type.Arr<*>) {
             helper.mv!!.visitInsn(ARETURN)
         }
     }

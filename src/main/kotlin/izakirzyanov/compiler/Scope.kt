@@ -2,13 +2,16 @@ package izakirzyanov.compiler
 
 import izakirzyanov.compiler.ast.Type
 import java.util.*
+import kotlin.collections.ArrayList
 
 class Scope {
     private val scopesStack: ArrayList<MutableMap<String, Pair<Type, Int>>> = ArrayList()
+    private val reserved: ArrayList<String> = ArrayList()
     var varNums: Int = 1
 
     init {
         scopesStack.add(HashMap<String, Pair<Type, Int>>())
+        reserved.addAll(listOf("int", "void", "bool", "str", "write", "writeln", "read", "readInt", "readBool", "readStr"))
     }
 
     fun beginNewScope() {
@@ -44,5 +47,9 @@ class Scope {
 
     fun isGlobal(name: String): Boolean {
         return scopesStack.findLast { it.containsKey(name) } == scopesStack.first()
+    }
+
+    fun isReserved(name: String): Boolean {
+        return reserved.contains(name)
     }
 }

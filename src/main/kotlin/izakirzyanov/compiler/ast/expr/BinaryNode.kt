@@ -20,7 +20,7 @@ class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx:
         errors.addAll(right.checkForErrorsAndInferType(scope, functionsList))
         when (op) {
             is Op.EqualityOp -> {
-                if (!left.type.isPrimitive) {
+                if (left.type.isPrimitive) {
                     errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
                     type = Type.Unknown
                 }
@@ -32,11 +32,11 @@ class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx:
                 }
             }
             is Op.Plus -> {
-                if (left.type != Type.Integer || left.type != Type.Str) {
+                if (left.type != Type.Integer && left.type != Type.Str) {
                     errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
                     type = Type.Unknown
                 }
-                if (right.type != Type.Integer || right.type != Type.Str) {
+                if (right.type != Type.Integer && right.type != Type.Str) {
                     errors.add(CompileError.UnsupportedOperator(op, right.type, right.ctx.text, right.ctx.getStart().line, right.ctx.getStart().charPositionInLine))
                     type = Type.Unknown
                 }
@@ -152,7 +152,7 @@ class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx:
                 helper.mv!!.visitLabel(l2)
             }
             Op.EQ -> {
-                if (left.type.isPrimitive) {
+                if (left.type == Type.Integer || left.type == Type.Bool) {
                     left.generateByteCode(helper, scope, functionsList)
                     right.generateByteCode(helper, scope, functionsList)
                     val l0 = Label()
@@ -171,7 +171,7 @@ class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx:
                 }
             }
             Op.NE -> {
-                if (left.type.isPrimitive) {
+                if (left.type == Type.Integer || left.type == Type.Bool) {
                     left.generateByteCode(helper, scope, functionsList)
                     right.generateByteCode(helper, scope, functionsList)
                     val l0 = Label()

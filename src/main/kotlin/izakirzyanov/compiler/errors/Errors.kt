@@ -68,6 +68,9 @@ sealed class CompileError(message: String, val line: Int, val column: Int) : Exc
     class WriteIsNotDefinedForNonPrimitiveTypes(type: Type, line: Int, column: Int) :
             CompileError("write and writeln are defined only for primitive types but the argument has type \"$type\".", line, column)
 
+    class ReservedCanNotBeUsedAsName(name: String, line: Int, column: Int) :
+            CompileError("\"$name\" is reserved word; you can not use it as variable name.", line, column)
+
 
     override fun toString(): String {
         return "Compiling ERROR at [$line:$column]: $message"

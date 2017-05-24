@@ -13,7 +13,7 @@ import java.util.HashMap
 class FunctionCallExprNode(val name: String, val arguments: List<ExprNode>? = null, ctx: ParserRuleContext) : ExprNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
-
+        arguments?.forEach { errors.addAll(it.checkForErrorsAndInferType(scope, functionsList)) }
         val argsActual = arguments ?: ArrayList()
         val argsActuallyNum = argsActual.size
         val argsExpected = functionsList[name]?.signature?.arguments ?: ArrayList()

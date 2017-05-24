@@ -30,7 +30,7 @@ class WhileNode(val condition: ExprNode, val body: BlockNode, ctx: ParserRuleCon
     }
 
     fun alwaysReturns(): Boolean {
-        return false;
+        return false
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {

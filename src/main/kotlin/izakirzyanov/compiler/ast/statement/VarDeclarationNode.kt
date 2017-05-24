@@ -16,6 +16,9 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
     class PrimitiveVarDeclarationNode(val name: String, val type: Type, val value: ExprNode, ctx: ParserRuleContext) : VarDeclarationNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
+            if (scope.isReserved(name)) {
+                errors.add(CompileError.ReservedCanNotBeUsedAsName(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            }
             if (scope.definedInTheLastScope(name)) {
                 errors.add(CompileError.VariableIsAlreadyDefinedInThisScope(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
             } else {
@@ -31,7 +34,7 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
             scope.putVariableWithOverride(name, type)
             value.generateByteCode(helper, scope, functionsList)
-            if (type.isPrimitive) {
+            if (type == Type.Integer || type == Type.Bool) {
                 helper.mv!!.visitVarInsn(ISTORE, scope.getVarNum(name))
             } else {
                 helper.mv!!.visitVarInsn(ASTORE, scope.getVarNum(name))
@@ -42,6 +45,10 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
     class ArrayVarDeclarationNode(val name: String, val type: Type.Arr<*>, val constructorPrimitiveType: Type, val sizes: List<ExprNode>, ctx: ParserRuleContext) : VarDeclarationNode(ctx) {
         override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
+            sizes.forEach { errors.addAll(it.checkForErrorsAndInferType(scope, functionsList)) }
+            if (scope.isReserved(name)) {
+                errors.add(CompileError.ReservedCanNotBeUsedAsName(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            }
             if (scope.definedInTheLastScope(name)) {
                 errors.add(CompileError.VariableIsAlreadyDefinedInThisScope(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
             } else {
@@ -55,7 +62,10 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
         }
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            scope.putVariableWithOverride(name, type)
+            sizes.forEach { it.generateByteCode(helper, scope, functionsList) }
+            helper.mv!!.visitMultiANewArrayInsn(type.toJVMType(), sizes.size)
+            helper.mv!!.visitVarInsn(ASTORE, scope.getVarNum(name))
         }
     }
 }

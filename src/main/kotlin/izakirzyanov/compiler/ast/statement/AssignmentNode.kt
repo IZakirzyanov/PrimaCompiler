@@ -3,6 +3,7 @@ package izakirzyanov.compiler.ast.statement
 import izakirzyanov.compiler.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
+import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.ast.expr.ExprNode
 import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
@@ -29,7 +30,7 @@ class AssignmentNode(val name: String, val value: ExprNode, ctx: ParserRuleConte
         if (scope.isGlobal(name)) {
             helper.mv!!.visitFieldInsn(PUTSTATIC, helper.className, name, type?.toJVMType())
         } else {
-            if (type!!.isPrimitive) {
+            if (type!! == Type.Integer || type == Type.Bool) {
                 helper.mv!!.visitVarInsn(ISTORE, scope.getVarNum(name))
             } else {
                 helper.mv!!.visitVarInsn(ASTORE, scope.getVarNum(name))

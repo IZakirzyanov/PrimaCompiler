@@ -54,7 +54,7 @@ sealed class Type {
 
     class Arr<out T : Type>(val type: T) : Type() {
         override fun toJVMType(): String {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            return "[" + type.toJVMType()
         }
 
         companion object {
@@ -100,6 +100,10 @@ sealed class Type {
         override fun toString(): String {
             return type.toString() + "[]"
         }
+
+        override fun hashCode(): Int {
+            return type.hashCode()
+        }
     }
 
     object Unknown : Type() {
@@ -114,7 +118,7 @@ sealed class Type {
 
     val isPrimitive: Boolean
         get() =
-        this == Integer || this == Bool
+        this == Integer || this == Bool || this == Str
 }
 
 fun String.toTypeNode(): Type {

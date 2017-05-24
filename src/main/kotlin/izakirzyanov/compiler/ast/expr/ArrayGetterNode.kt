@@ -6,6 +6,7 @@ import izakirzyanov.compiler.ast.FunctionNode
 import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
+import org.objectweb.asm.Opcodes.*
 import java.util.ArrayList
 import java.util.HashMap
 
@@ -27,6 +28,21 @@ class ArrayGetterNode(val name: String, val indices: List<ExprNode>, ctx: Parser
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var type = scope.getType(name)
+        helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum(name))
+        indices.forEach {
+            it.generateByteCode(helper, scope, functionsList)
+            if (!(type as Type.Arr<*>).type.isPrimitive) {
+                helper.mv!!.visitInsn(AALOAD)
+            }
+            type = (type as Type.Arr<*>).type
+        }
+        if (type == Type.Integer) {
+            helper.mv!!.visitInsn(IALOAD)
+        } else if (type == Type.Bool) {
+            helper.mv!!.visitInsn(BALOAD)
+        } else if (type == Type.Str || type is Type.Arr<*>) {
+            helper.mv!!.visitInsn(AALOAD)
+        }
     }
 }

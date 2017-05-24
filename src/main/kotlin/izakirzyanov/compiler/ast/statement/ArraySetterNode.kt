@@ -7,6 +7,7 @@ import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.ast.expr.ExprNode
 import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
+import org.objectweb.asm.Opcodes.*
 import java.util.ArrayList
 import java.util.HashMap
 
@@ -33,6 +34,21 @@ class ArraySetterNode(val name: String, val indices: List<ExprNode>, val value: 
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var type = scope.getType(name)
+        helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum(name))
+        indices.dropLast(1).forEach {
+            it.generateByteCode(helper, scope, functionsList)
+            helper.mv!!.visitInsn(AALOAD)
+            type = (type as Type.Arr<*>).type
+        }
+        indices.last().generateByteCode(helper, scope, functionsList)
+        value.generateByteCode(helper, scope, functionsList)
+        if (value.type == Type.Integer) {
+            helper.mv!!.visitInsn(IASTORE)
+        } else if (value.type == Type.Bool) {
+            helper.mv!!.visitInsn(BASTORE)
+        } else if (value.type == Type.Str || value.type is Type.Arr<*>) {
+            helper.mv!!.visitInsn(AASTORE)
+        }
     }
 }

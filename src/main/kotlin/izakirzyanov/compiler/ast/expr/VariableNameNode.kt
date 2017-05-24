@@ -24,9 +24,11 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
         if (scope.isGlobal(name)) {
             helper.mv!!.visitFieldInsn(GETSTATIC, helper.className, name, scope.getType(name)?.toJVMType())
         } else {
-            if (scope.getType(name)!!.isPrimitive) {
+            if (scope.getType(name) == Type.Integer || scope.getType(name) == Type.Bool) {
                 helper.mv!!.visitVarInsn(ILOAD, scope.getVarNum(name))
-            } else {
+            } else if (scope.getType(name) == Type.Str) {
+                helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum(name))
+            } else if (scope.getType(name) is Type.Arr<*>) {
                 helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum(name))
             }
         }
