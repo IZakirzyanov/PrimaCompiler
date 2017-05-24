@@ -17,22 +17,17 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitFunctionDeclaration(ctx: PrimaParser.FunctionDeclarationContext): FunctionNode {
-        val signature = visitFunctionSignature(ctx.functionSignature())
-        val body = visitBlock(ctx.block())
-        return FunctionNode(signature, body, ctx)
+        return FunctionNode(visitFunctionSignature(ctx.functionSignature()), visitBlock(ctx.block()), ctx)
     }
 
     override fun visitFunctionSignature(ctx: PrimaParser.FunctionSignatureContext): FunctionSignatureNode {
-        val name = ctx.name.text
         val arguments = ctx.functionArguments()?.functionArg()?.map { visitFunctionArg(it) }?.toList()
         val type = ctx.type().nonVoidType()?.text?.toTypeNode() ?: Type.Void
-        return FunctionSignatureNode(name, arguments, type, ctx)
+        return FunctionSignatureNode(ctx.name.text, arguments, type, ctx)
     }
 
     override fun visitFunctionArg(ctx: PrimaParser.FunctionArgContext): ArgumentNode {
-        val name = ctx.name.text
-        val type = ctx.nonVoidType().text.toTypeNode()
-        return ArgumentNode(name, type, ctx)
+        return ArgumentNode(ctx.name.text, ctx.nonVoidType().text.toTypeNode(), ctx)
     }
 
     override fun visitStatement(ctx: PrimaParser.StatementContext): StatementNode {
@@ -93,22 +88,15 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitAssignment(ctx: PrimaParser.AssignmentContext): AssignmentNode {
-        val name = ctx.name.text
-        val value = visitEXPR(ctx.expr())
-        return AssignmentNode(name, value, ctx)
+        return AssignmentNode(ctx.name.text, visitEXPR(ctx.expr()), ctx)
     }
 
     override fun visitIfStatement(ctx: PrimaParser.IfStatementContext): IfNode {
-        val condition = visitEXPR(ctx.condition)
-        val thenBlock = visitBlock(ctx.thenBlock)
-        val elseBlock = ctx.elseBlock?.let { visitBlock(it) }
-        return IfNode(condition, thenBlock, elseBlock, ctx)
+        return IfNode(visitEXPR(ctx.condition), visitBlock(ctx.thenBlock), ctx.elseBlock?.let { visitBlock(it) }, ctx)
     }
 
     override fun visitWhileStatement(ctx: PrimaParser.WhileStatementContext): WhileNode {
-        val condition = visitEXPR(ctx.condition)
-        val body = visitBlock(ctx.body)
-        return WhileNode(condition, body, ctx)
+        return WhileNode(visitEXPR(ctx.condition), visitBlock(ctx.body), ctx)
     }
 
     override fun visitWriteStatement(ctx: PrimaParser.WriteStatementContext): WriteNode {
@@ -120,9 +108,8 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitFunctionCallStatement(ctx: PrimaParser.FunctionCallStatementContext): FunctionCallStatementNode {
-        val name = ctx.functionCall().name.text
         val arguments = ctx.functionCall().argumentList()?.expr()?.map { visitEXPR(it) }?.toList()
-        return FunctionCallStatementNode(name, arguments, ctx)
+        return FunctionCallStatementNode(ctx.functionCall().name.text, arguments, ctx)
     }
 
     override fun visitEXPRParenthesis(ctx: PrimaParser.EXPRParenthesisContext): ExprNode {
@@ -159,9 +146,8 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitEXPRFunctionCall(ctx: PrimaParser.EXPRFunctionCallContext): FunctionCallExprNode {
-        val name = ctx.functionCall().name.text
         val arguments = ctx.functionCall().argumentList()?.expr()?.map { visitEXPR(it) }?.toList()
-        return FunctionCallExprNode(name, arguments, ctx)
+        return FunctionCallExprNode(ctx.functionCall().name.text, arguments, ctx)
     }
 
     override fun visitArrayGetter(ctx: PrimaParser.ArrayGetterContext): ArrayGetterNode {
