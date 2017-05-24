@@ -1,0 +1,44 @@
+fun main(): void {
+    var n: int = readInt();
+    printPrimes(getPrimes(n), n);
+}
+
+fun getPrimes(n: int): bool[] {
+    var prime: bool[] = bool[n + 1];
+    var i: int = 0;
+    while (i < n + 1) {
+        prime[i] = true;
+        i = i + 1;
+    }
+    prime[0] = false;
+    prime[1] = false;
+    i = 2;
+    while (i <= n) {
+        if (prime[i]) {
+            if (i * i <= n) {
+                var j: int = i * i;
+                while (j <= n) {
+                    prime[j] = false;
+                    j = j + i;
+                }
+            }
+        }
+        i = i + 1;
+    }
+    return prime;
+}
+
+fun printPrimes(b: bool[], size: int): void {
+    var i: int = 0;
+    write("Primes from 2 to ");
+    write(size);
+    write(": ");
+    while (i < size) {
+        if (b[i]) {
+            write(i);
+            write(" ");
+        }
+        i = i + 1;
+    }
+    writeln();
+}

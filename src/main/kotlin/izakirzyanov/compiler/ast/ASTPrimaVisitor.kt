@@ -2,8 +2,8 @@ package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.PrimaBaseVisitor
 import izakirzyanov.compiler.PrimaParser
-import izakirzyanov.compiler.ast.ExprNode.*
-import izakirzyanov.compiler.ast.StatementNode.*
+import izakirzyanov.compiler.ast.expr.*
+import izakirzyanov.compiler.ast.statement.*
 
 class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: PrimaParser.ProgramContext): ProgramNode {
@@ -13,11 +13,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitGlobalVarDeclaration(ctx: PrimaParser.GlobalVarDeclarationContext): GlobalVarNode {
-        val varDeclarationContext = ctx.varDeclarationStatement().varDeclaration()
-        val name = varDeclarationContext.name.text
-        val type = varDeclarationContext.nonVoidType().text.toTypeNode()
-        val expr = varDeclarationContext.expr().let { visitEXPR(it) }
-        return GlobalVarNode(VarDeclarationNode(name, type, expr, varDeclarationContext), ctx)
+        return GlobalVarNode(visitVarDeclaration(ctx.varDeclarationStatement().varDeclaration()), ctx)
     }
 
     override fun visitFunctionDeclaration(ctx: PrimaParser.FunctionDeclarationContext): FunctionNode {
@@ -49,6 +45,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         if (ctx.writeStatement() != null) return visitWriteStatement(ctx.writeStatement())
         if (ctx.returnStatement() != null) return visitReturnStatement(ctx.returnStatement())
         if (ctx.functionCallStatement() != null) return visitFunctionCallStatement(ctx.functionCallStatement())
+        if (ctx.arraySetterStatement() != null) return visitArraySetterStatement(ctx.arraySetterStatement())
         throw RuntimeException("Shouldn't be HERE!")
     }
 
@@ -65,11 +62,30 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         return visitVarDeclaration(ctx.varDeclaration())
     }
 
-    override fun visitVarDeclaration(ctx: PrimaParser.VarDeclarationContext): VarDeclarationNode {
-        val name = ctx.name.text
-        val type = ctx.nonVoidType().text.toTypeNode()
-        val value = ctx.expr().let { visitEXPR(it) }
-        return VarDeclarationNode(name, type, value, ctx)
+    fun visitVarDeclaration(ctx: PrimaParser.VarDeclarationContext): VarDeclarationNode {
+        return when (ctx) {
+            is PrimaParser.PrimitiveDeclarationContext -> visitPrimitiveDeclaration(ctx)
+            is PrimaParser.ArrayDeclarationContext -> visitArrayDeclaration(ctx)
+            else -> throw RuntimeException("This should never happen")
+        }
+    }
+
+    override fun visitPrimitiveDeclaration(ctx: PrimaParser.PrimitiveDeclarationContext): VarDeclarationNode.PrimitiveVarDeclarationNode {
+        return VarDeclarationNode.PrimitiveVarDeclarationNode(ctx.name.text, ctx.primitiveType().text.toTypeNode(), visitEXPR(ctx.expr()), ctx)
+    }
+
+    override fun visitArrayDeclaration(ctx: PrimaParser.ArrayDeclarationContext): VarDeclarationNode.ArrayVarDeclarationNode {
+        return VarDeclarationNode.ArrayVarDeclarationNode(
+                ctx.name.text,
+                ctx.arrayType().text.toTypeNode() as Type.Arr<*>,
+                ctx.arrayInitializer().primitiveType().text.toTypeNode(),
+                ctx.arrayInitializer().sizes.map { visitEXPR(it) }.toList(),
+                ctx
+        )
+    }
+
+    override fun visitArraySetterStatement(ctx: PrimaParser.ArraySetterStatementContext): ArraySetterNode {
+        return ArraySetterNode(ctx.name.text, ctx.indices.map { visitEXPR(it) }, visitEXPR(ctx.value), ctx)
     }
 
     override fun visitAssignmentStatement(ctx: PrimaParser.AssignmentStatementContext): AssignmentNode {
@@ -148,6 +164,10 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         return FunctionCallExprNode(name, arguments, ctx)
     }
 
+    override fun visitArrayGetter(ctx: PrimaParser.ArrayGetterContext): ArrayGetterNode {
+        return ArrayGetterNode(ctx.name.text, ctx.indices.map { visitEXPR(it) }, ctx)
+    }
+
     fun visitEXPR(ctx: PrimaParser.ExprContext): ExprNode {
         return when (ctx) {
             is PrimaParser.EXPRParenthesisContext -> visitEXPR(ctx.expr())
@@ -157,6 +177,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
             is PrimaParser.EXPRBinaryContext -> visitEXPRBinary(ctx)
             is PrimaParser.EXPRFunctionCallContext -> visitEXPRFunctionCall(ctx)
             is PrimaParser.EXPRReadCallContext -> visitEXPRReadCall(ctx)
+            is PrimaParser.EXPRArrayGetterContext -> visitArrayGetter(ctx.arrayGetter())
             else -> throw RuntimeException("This should never happen")
         }
     }

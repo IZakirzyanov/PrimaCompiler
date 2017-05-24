@@ -1,13 +1,14 @@
 package izakirzyanov.compiler.ast
 
 import izakirzyanov.compiler.Scope
+import izakirzyanov.compiler.ast.statement.BlockNode
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.errors.CompileError.DuplicatedArgument
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
-class FunctionNode(val signature: FunctionSignatureNode, val body: StatementNode.BlockNode, ctx: ParserRuleContext) : ASTNode(ctx) {
+class FunctionNode(val signature: FunctionSignatureNode, val body: BlockNode, ctx: ParserRuleContext) : ASTNode(ctx) {
     fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
         val args = HashSet<String>()

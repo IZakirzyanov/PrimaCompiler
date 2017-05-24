@@ -1,4 +1,4 @@
-// Generated from D:/prog/studying/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
+// Generated from D:/hw/PrimaCompiler/src/main/java/izakirzyanov/compiler\Prima.g4 by ANTLR 4.7
 package izakirzyanov.compiler;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -148,6 +148,18 @@ public class PrimaBaseListener implements PrimaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterArraySetterStatement(PrimaParser.ArraySetterStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArraySetterStatement(PrimaParser.ArraySetterStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterIfStatement(PrimaParser.IfStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -220,13 +232,37 @@ public class PrimaBaseListener implements PrimaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVarDeclaration(PrimaParser.VarDeclarationContext ctx) { }
+	@Override public void enterArrayDeclaration(PrimaParser.ArrayDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVarDeclaration(PrimaParser.VarDeclarationContext ctx) { }
+	@Override public void exitArrayDeclaration(PrimaParser.ArrayDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrimitiveDeclaration(PrimaParser.PrimitiveDeclarationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayInitializer(PrimaParser.ArrayInitializerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayInitializer(PrimaParser.ArrayInitializerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -251,6 +287,42 @@ public class PrimaBaseListener implements PrimaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNonVoidType(PrimaParser.NonVoidTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterPrimitiveType(PrimaParser.PrimitiveTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitPrimitiveType(PrimaParser.PrimitiveTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayType(PrimaParser.ArrayTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayType(PrimaParser.ArrayTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDims(PrimaParser.DimsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDims(PrimaParser.DimsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -316,6 +388,18 @@ public class PrimaBaseListener implements PrimaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterEXPRArrayGetter(PrimaParser.EXPRArrayGetterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEXPRArrayGetter(PrimaParser.EXPRArrayGetterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterEXPRVarName(PrimaParser.EXPRVarNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -347,6 +431,18 @@ public class PrimaBaseListener implements PrimaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEXPRLiteral(PrimaParser.EXPRLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayGetter(PrimaParser.ArrayGetterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayGetter(PrimaParser.ArrayGetterContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -53,11 +53,24 @@ sealed class CompileError(message: String, val line: Int, val column: Int) : Exc
     class TypeMismatchInBinaryOperator(op: Op, ltype: Type, rtype: Type, line: Int, column: Int) :
             CompileError("operator \"$op\" requires equal types but here are (\"$ltype\",\"$rtype\").", line, column)
 
-    class MainFunctionIsMissed() :
+    class MainFunctionIsMissed :
             CompileError("file should contain main function with signature \"fun main(): void\"", 1, 1)
 
     class MainFunctionWrongSignature(actual: String, line: Int, column: Int) :
             CompileError("Main function should have signature \"fun main(): void\", but actually has \"$actual\"", line, column)
+
+    class ConstructorTypeMismatch(name: String, actual: Type, expected: Type, line: Int, column: Int) :
+            CompileError("constructor for the variable \"$name\" has \"$actual\" type but expected \"$expected\".", line, column)
+
+    class VariableIsNotArray(name: String, type: Type, line: Int, column: Int) :
+            CompileError("variable \"$name\" is not array, it has type \"$type\".", line, column)
+
+    class WriteIsNotDefinedForNonPrimitiveTypes(type: Type, line: Int, column: Int) :
+            CompileError("write and writeln are defined only for primitive types but the argument has type \"$type\".", line, column)
+
+    class ReservedCanNotBeUsedAsName(name: String, line: Int, column: Int) :
+            CompileError("\"$name\" is reserved word; you can not use it as variable name.", line, column)
+
 
     override fun toString(): String {
         return "Compiling ERROR at [$line:$column]: $message"
