@@ -1,10 +1,11 @@
 # Prima language Compiler
-##### v. 0.2
+##### v. 0.3
 
 ## Features
 
 - kotlin-like syntax (but, e.g., with semicolons)
-- `int`,`bool` and `str` types
+- primitive `int`,`bool` and `str` types
+- arrays
 - primitive operators: 
     - `+`, `-`, `*`, `/`, `%` - `(int, int) -> int`
     - `==`, `!=` - `((T, T) -> bool)`
@@ -20,13 +21,14 @@
 ## Build
 The project can be built with gradle
 
-## Some details about specification
+## Some details about the specification
 Source file name should be in form `[name].prima`.
  
 Output class file will be named `[name].class` with class `[name]` inside.
 Use `java [name]` to run it
 
-Variable's declaration syntax (all variables are mutable): `var N:T = EXPR`. 
+Primitive type variable's declaration syntax (all variables are mutable): `var N:T = EXPR`.
+Array variable's declaration syntax (all variables are mutable): `var N:T[] = T[size]`, where `T: Primitive | T[]`.
 
 Function's declaration syntax: `fun [main]([N1]:[T1], ... ,[Nn]:[Tn]): type {}`.
 
@@ -72,3 +74,33 @@ fun getName(): str {
     return readStr();
 }
 ```
+
+Some arrays stuff:
+```kotlin
+fun main(): void {
+	var tenOfTenOfTen: int[][] = int[ten()][10];
+	var i: int = 0;
+    while (i < 10) {
+        tenOfTenOfTen[i] = tenOfTen();
+        i = i + 1;
+    }
+    tenOfTenOfTen[1][2] = 5;
+    writeln(tenOfTenOfTen[1][2]);
+}
+
+fun ten(): int {
+	return 10;
+}
+
+fun tenOfTen(): int[] {
+	var tenOfTen: int[] = int[ten()];
+    var i: int = 0;
+    while (i < 10) {
+        tenOfTen[i] = 10;
+        i = i + 1;
+    }
+	return tenOfTen;
+}
+```
+
+More examples are in `examples` folder.
