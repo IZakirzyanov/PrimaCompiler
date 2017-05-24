@@ -9,14 +9,14 @@ import org.antlr.v4.runtime.ParserRuleContext
 import java.util.ArrayList
 import java.util.HashMap
 
-class BlockNode(val statements: List<StatementNode>? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
+class BlockNode(val statements: ArrayList<StatementNode> = ArrayList(), ctx: ParserRuleContext) : StatementNode(ctx) {
 
     override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.beginNewScope()
         }
         val errors = ArrayList<CompileError>()
-        statements?.forEach {
+        statements.forEach {
             if (it is ReturnNode && it != statements.last()) {
                 errors.add(CompileError.DeadCodeAfterReturn(it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
             }
@@ -26,6 +26,10 @@ class BlockNode(val statements: List<StatementNode>? = null, ctx: ParserRuleCont
             scope.endScope()
         }
         return errors
+    }
+
+    fun addStatementToBody(statement: StatementNode) {
+        statements.add(statement)
     }
 
     fun setNameOfFunInReturn(name: String) {

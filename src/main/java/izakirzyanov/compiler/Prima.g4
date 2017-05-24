@@ -41,6 +41,7 @@ statement
     | assignmentStatement
     | ifStatement
     | whileStatement
+    | forStatement
     | writeStatement
     | returnStatement
     | functionCallStatement
@@ -61,6 +62,19 @@ arraySetterStatement
 ifStatement
     : 'if' '(' condition=expr ')' thenBlock=block ('else' elseBlock=block)?
     ;
+
+forStatement
+   : 'for' '(' forInit? ';' forStopCondition=expr ';' forIteration? ')' body=block
+   ;
+
+forInit
+   : assignment
+   | varDeclaration
+   ;
+
+forIteration
+   : assignment
+   ;
 
 whileStatement
     : 'while' '(' condition=expr ')' body=block

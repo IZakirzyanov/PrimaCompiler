@@ -29,8 +29,8 @@ sealed class CompileError(message: String, val line: Int, val column: Int) : Exc
     class IfConditionMustBeBoolean(type: Type, line: Int, column: Int) :
             CompileError("if-condition must have \"bool\" but actually have \"$type\".", line, column)
 
-    class WhileConditionMustBeBoolean(type: Type, line: Int, column: Int) :
-            CompileError("while-condition must have \"bool\" but actually have \"$type\".", line, column)
+    class LoopConditionMustBeBoolean(type: Type, line: Int, column: Int) :
+            CompileError("loop-condition must have \"bool\" but actually have \"$type\".", line, column)
 
     class FunctionIsNotDefined(name: String, line: Int, column: Int) :
             CompileError("function \"$name\" is called but not defined.", line, column)

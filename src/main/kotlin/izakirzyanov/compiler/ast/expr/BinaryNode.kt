@@ -20,7 +20,7 @@ class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx:
         errors.addAll(right.checkForErrorsAndInferType(scope, functionsList))
         when (op) {
             is Op.EqualityOp -> {
-                if (left.type.isPrimitive) {
+                if (!left.type.isPrimitive) {
                     errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
                     type = Type.Unknown
                 }

@@ -18,7 +18,7 @@ class WhileNode(val condition: ExprNode, val body: BlockNode, ctx: ParserRuleCon
         val errors = ArrayList<CompileError>()
         errors.addAll(condition.checkForErrorsAndInferType(scope, functionsList))
         if (condition.type != Type.Bool) {
-            errors.add(CompileError.WhileConditionMustBeBoolean(condition.type, condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
+            errors.add(CompileError.LoopConditionMustBeBoolean(condition.type, condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
         }
 
         errors.addAll(body.checkForErrorsAndTypes(scope, functionsList))

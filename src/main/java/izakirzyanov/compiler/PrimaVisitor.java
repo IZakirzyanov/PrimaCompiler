@@ -89,6 +89,24 @@ public interface PrimaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIfStatement(PrimaParser.IfStatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link PrimaParser#forStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForStatement(PrimaParser.ForStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PrimaParser#forInit}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForInit(PrimaParser.ForInitContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link PrimaParser#forIteration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForIteration(PrimaParser.ForIterationContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link PrimaParser#whileStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

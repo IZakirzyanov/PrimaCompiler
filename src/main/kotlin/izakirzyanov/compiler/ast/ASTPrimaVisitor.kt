@@ -41,6 +41,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
         if (ctx.returnStatement() != null) return visitReturnStatement(ctx.returnStatement())
         if (ctx.functionCallStatement() != null) return visitFunctionCallStatement(ctx.functionCallStatement())
         if (ctx.arraySetterStatement() != null) return visitArraySetterStatement(ctx.arraySetterStatement())
+        if (ctx.forStatement() != null) return visitForStatement(ctx.forStatement())
         throw RuntimeException("Shouldn't be HERE!")
     }
 
@@ -49,7 +50,11 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitBlock(ctx: PrimaParser.BlockContext): BlockNode {
-        val statements = ctx.statement().map { visitStatement(it) }.toList()
+        val statements = if (ctx.statement() != null) {
+             ArrayList(ctx.statement().map { visitStatement(it) })
+        } else {
+            ArrayList()
+        }
         return BlockNode(statements, ctx)
     }
 
@@ -93,6 +98,27 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
 
     override fun visitIfStatement(ctx: PrimaParser.IfStatementContext): IfNode {
         return IfNode(visitEXPR(ctx.condition), visitBlock(ctx.thenBlock), ctx.elseBlock?.let { visitBlock(it) }, ctx)
+    }
+
+    override fun visitForStatement(ctx: PrimaParser.ForStatementContext): BlockNode {
+        val statements: ArrayList<StatementNode> = ArrayList()
+        val init = ctx.forInit()
+        if (init != null) {
+            statements.add(if (init.assignment() != null) {
+                visitAssignment(init.assignment())
+            } else if (init.varDeclaration() != null) {
+                visitVarDeclaration(init.varDeclaration())
+            } else {
+                throw RuntimeException("This should never happen")
+            })
+        }
+        val iteration = ctx.forIteration()
+        val whileNode = WhileNode(visitEXPR(ctx.forStopCondition), visitBlock(ctx.body), ctx)
+        if (iteration != null) {
+            whileNode.body.addStatementToBody(visitAssignment(iteration.assignment()))
+        }
+        statements.add(whileNode)
+        return BlockNode(statements, ctx)
     }
 
     override fun visitWhileStatement(ctx: PrimaParser.WhileStatementContext): WhileNode {
