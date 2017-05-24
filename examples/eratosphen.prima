@@ -5,25 +5,19 @@ fun main(): void {
 
 fun getPrimes(n: int): bool[] {
     var prime: bool[] = bool[n + 1];
-    var i: int = 0;
-    while (i < n + 1) {
+    for (var i: int = 0; i < n + 1; i = i + 1) {
         prime[i] = true;
-        i = i + 1;
     }
     prime[0] = false;
     prime[1] = false;
-    i = 2;
-    while (i <= n) {
+    for (var i: int = 2; i <= n; i = i + 1) {
         if (prime[i]) {
             if (i * i <= n) {
-                var j: int = i * i;
-                while (j <= n) {
+                for (var j: int = i * i; j <= n; j = j + i) {
                     prime[j] = false;
-                    j = j + i;
                 }
             }
         }
-        i = i + 1;
     }
     return prime;
 }
