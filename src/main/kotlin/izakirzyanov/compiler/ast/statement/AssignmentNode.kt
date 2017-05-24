@@ -8,8 +8,7 @@ import izakirzyanov.compiler.ast.expr.ExprNode
 import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class AssignmentNode(val name: String, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
     override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
@@ -19,7 +18,9 @@ class AssignmentNode(val name: String, val value: ExprNode, ctx: ParserRuleConte
         if (type == null) {
             errors.add(CompileError.VariableIsNotDefined(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
         } else if (value.type != type) {
-            errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            if (value.type != Type.Unknown) {
+                errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            }
         }
         return errors
     }

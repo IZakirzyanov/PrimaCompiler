@@ -3,13 +3,13 @@ package izakirzyanov.compiler.ast.statement
 import izakirzyanov.compiler.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
+import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.ast.expr.ExprNode
 import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.GETSTATIC
 import org.objectweb.asm.Opcodes.INVOKEVIRTUAL
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class WriteNode(val nextLine: Boolean = true, val value: ExprNode? = null, ctx: ParserRuleContext) : StatementNode(ctx) {
     override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
@@ -17,7 +17,9 @@ class WriteNode(val nextLine: Boolean = true, val value: ExprNode? = null, ctx: 
         errors.addAll(value?.checkForErrorsAndInferType(scope, functionsList) ?: emptyList())
         val valType = value?.type
         if (valType != null && !valType.isPrimitive) {
-            errors.add(CompileError.WriteIsNotDefinedForNonPrimitiveTypes(valType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            if (valType != Type.Unknown) {
+                errors.add(CompileError.WriteIsNotDefinedForNonPrimitiveTypes(valType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            }
         }
         return errors
     }

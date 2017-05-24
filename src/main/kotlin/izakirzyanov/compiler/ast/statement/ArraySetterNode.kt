@@ -8,8 +8,7 @@ import izakirzyanov.compiler.ast.expr.ExprNode
 import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class ArraySetterNode(val name: String, val indices: List<ExprNode>, val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
     override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
@@ -19,14 +18,18 @@ class ArraySetterNode(val name: String, val indices: List<ExprNode>, val value: 
         if (fullType == null) {
             errors.add(CompileError.VariableIsNotDefined(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
         } else {
-            if (fullType !is Type.Arr<*>) {
-                errors.add(CompileError.VariableIsNotArray(name, fullType, ctx.getStart().line, ctx.getStart().charPositionInLine))
-            } else if (fullType.getArrayDepth() < indices.size) {
-                errors.add(CompileError.VariableIsNotArray(Type.Arr.buildArrCall(name, indices), fullType.getPrimitiveType(), ctx.getStart().line, ctx.getStart().charPositionInLine))
-            } else {
-                val leftType = fullType.getSubType(indices)
-                if (leftType != value.type) {
-                    errors.add(CompileError.VariableTypeMismatch(name, value.type, leftType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            if (fullType != Type.Unknown) {
+                if (fullType !is Type.Arr<*>) {
+                    errors.add(CompileError.VariableIsNotArray(name, fullType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                } else if (fullType.getArrayDepth() < indices.size) {
+                    errors.add(CompileError.VariableIsNotArray(Type.Arr.buildArrCall(name, indices), fullType.getPrimitiveType(), ctx.getStart().line, ctx.getStart().charPositionInLine))
+                } else {
+                    val leftType = fullType.getSubType(indices)
+                    if (leftType != value.type) {
+                        if (value.type != Type.Unknown) {
+                            errors.add(CompileError.VariableTypeMismatch(name, value.type, leftType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                        }
+                    }
                 }
             }
         }

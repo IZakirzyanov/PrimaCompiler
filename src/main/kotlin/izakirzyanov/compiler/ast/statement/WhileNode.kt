@@ -10,15 +10,16 @@ import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.GOTO
 import org.objectweb.asm.Opcodes.IFEQ
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class WhileNode(val condition: ExprNode, val body: BlockNode, ctx: ParserRuleContext) : StatementNode(ctx) {
     override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
         errors.addAll(condition.checkForErrorsAndInferType(scope, functionsList))
         if (condition.type != Type.Bool) {
-            errors.add(CompileError.LoopConditionMustBeBoolean(condition.type, condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
+            if (condition.type != Type.Unknown) {
+                errors.add(CompileError.LoopConditionMustBeBoolean(condition.type, condition.ctx.getStart().line, condition.ctx.getStart().charPositionInLine))
+            }
         }
 
         errors.addAll(body.checkForErrorsAndTypes(scope, functionsList))

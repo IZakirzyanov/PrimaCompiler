@@ -7,8 +7,7 @@ import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.INVOKESTATIC
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class FunctionCallExprNode(val name: String, val arguments: List<ExprNode>? = null, ctx: ParserRuleContext) : ExprNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
@@ -26,8 +25,10 @@ class FunctionCallExprNode(val name: String, val arguments: List<ExprNode>? = nu
         } else {
             argsActual.zip(argsExpected).forEach {
                 if (it.first.type != it.second.type) {
-                    errors.add(CompileError.ArgumentTypeMismatch(it.second.name, it.first.type, it.second.type,
-                            it.first.ctx.getStart().line, it.first.ctx.getStart().charPositionInLine))
+                    if (it.first.type != Type.Unknown) {
+                        errors.add(CompileError.ArgumentTypeMismatch(it.second.name, it.first.type, it.second.type,
+                                it.first.ctx.getStart().line, it.first.ctx.getStart().charPositionInLine))
+                    }
                 }
             }
         }

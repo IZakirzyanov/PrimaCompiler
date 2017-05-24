@@ -9,8 +9,7 @@ import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.ASTORE
 import org.objectweb.asm.Opcodes.ISTORE
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
     class PrimitiveVarDeclarationNode(val name: String, val type: Type, val value: ExprNode, ctx: ParserRuleContext) : VarDeclarationNode(ctx) {
@@ -25,7 +24,9 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
                 scope.putVariableWithOverride(name, type)
                 errors.addAll(value.checkForErrorsAndInferType(scope, functionsList))
                 if (type != value.type) {
-                    errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                    if (value.type != Type.Unknown) {
+                        errors.add(CompileError.VariableTypeMismatch(name, value.type, type, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                    }
                 }
             }
             return errors
@@ -52,9 +53,8 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
             if (scope.definedInTheLastScope(name)) {
                 errors.add(CompileError.VariableIsAlreadyDefinedInThisScope(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
             } else {
-                val expected = type.getPrimitiveType()
-                if (expected != constructorPrimitiveType || sizes.size != type.getArrayDepth()) {
-                    errors.add(CompileError.ConstructorTypeMismatch(name, Type.Arr.buildArrType(constructorPrimitiveType, sizes.size), expected, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                if (type.getPrimitiveType() != constructorPrimitiveType || sizes.size != type.getArrayDepth()) {
+                    errors.add(CompileError.ConstructorTypeMismatch(name, Type.Arr.buildArrType(constructorPrimitiveType, sizes.size), type, ctx.getStart().line, ctx.getStart().charPositionInLine))
                 }
                 scope.putVariableWithOverride(name, type)
             }

@@ -9,8 +9,7 @@ import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.ARETURN
 import org.objectweb.asm.Opcodes.IRETURN
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class ReturnNode(val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
     lateinit var funName: String
@@ -21,7 +20,9 @@ class ReturnNode(val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ct
         val actual = value.type
         val expected = functionsList[funName]?.signature?.type ?: Type.Void
         if (actual != expected) {
-            errors.add(CompileError.ReturnTypeMismatch(funName, actual, expected, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            if (actual != Type.Unknown) {
+                errors.add(CompileError.ReturnTypeMismatch(funName, actual, expected, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            }
         }
         return errors
     }

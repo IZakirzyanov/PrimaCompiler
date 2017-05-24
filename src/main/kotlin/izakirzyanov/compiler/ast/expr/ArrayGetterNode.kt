@@ -7,8 +7,7 @@ import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class ArrayGetterNode(val name: String, val indices: List<ExprNode>, ctx: ParserRuleContext) : ExprNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
@@ -17,10 +16,12 @@ class ArrayGetterNode(val name: String, val indices: List<ExprNode>, ctx: Parser
         if (fullType == null) {
             errors.add(CompileError.VariableIsNotDefined(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
         } else {
-            if (fullType !is Type.Arr<*>) {
-                errors.add(CompileError.VariableIsNotArray(name, fullType, ctx.getStart().line, ctx.getStart().charPositionInLine))
-            } else if (fullType.getArrayDepth() < indices.size) {
-                errors.add(CompileError.VariableIsNotArray(Type.Arr.buildArrCall(name, indices), fullType.getPrimitiveType(), ctx.getStart().line, ctx.getStart().charPositionInLine))
+            if (fullType != Type.Unknown) {
+                if (fullType !is Type.Arr<*>) {
+                    errors.add(CompileError.VariableIsNotArray(name, fullType, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                } else if (fullType.getArrayDepth() < indices.size) {
+                    errors.add(CompileError.VariableIsNotArray(Type.Arr.buildArrCall(name, indices), fullType.getPrimitiveType(), ctx.getStart().line, ctx.getStart().charPositionInLine))
+                }
             }
         }
         type = (fullType as? Type.Arr<*>)?.getSubType(indices) ?: Type.Unknown

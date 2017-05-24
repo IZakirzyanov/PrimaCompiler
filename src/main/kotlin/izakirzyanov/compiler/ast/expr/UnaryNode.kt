@@ -9,8 +9,7 @@ import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class UnaryNode(val op: Op.UnOp, val expr: ExprNode, ctx: ParserRuleContext) : ExprNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
@@ -19,7 +18,9 @@ class UnaryNode(val op: Op.UnOp, val expr: ExprNode, ctx: ParserRuleContext) : E
         when (op) {
             is Op.IntOp -> {
                 if (expr.type != Type.Integer) {
-                    errors.add(CompileError.UnsupportedOperator(op, expr.type, expr.ctx.text, expr.ctx.getStart().line, expr.ctx.getStart().charPositionInLine))
+                    if (expr.type != Type.Unknown) {
+                        errors.add(CompileError.TypeMismatchInUnaryOperator(op, expr.type, expr.ctx.text, expr.ctx.getStart().line, expr.ctx.getStart().charPositionInLine))
+                    }
                     type = Type.Unknown
                 } else {
                     type = Type.Integer
@@ -27,7 +28,9 @@ class UnaryNode(val op: Op.UnOp, val expr: ExprNode, ctx: ParserRuleContext) : E
             }
             is Op.BoolOp -> {
                 if (expr.type != Type.Bool) {
-                    errors.add(CompileError.UnsupportedOperator(op, expr.type, expr.ctx.text, expr.ctx.getStart().line, expr.ctx.getStart().charPositionInLine))
+                    if (expr.type != Type.Unknown) {
+                        errors.add(CompileError.TypeMismatchInUnaryOperator(op, expr.type, expr.ctx.text, expr.ctx.getStart().line, expr.ctx.getStart().charPositionInLine))
+                    }
                     type = Type.Unknown
                 } else {
                     type = Type.Bool

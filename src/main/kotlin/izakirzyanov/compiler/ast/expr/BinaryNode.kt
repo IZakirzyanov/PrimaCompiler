@@ -9,8 +9,7 @@ import izakirzyanov.compiler.errors.CompileError
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx: ParserRuleContext) : ExprNode(ctx) {
 
@@ -20,42 +19,34 @@ class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx:
         errors.addAll(right.checkForErrorsAndInferType(scope, functionsList))
         when (op) {
             is Op.EqualityOp -> {
-                if (!left.type.isPrimitive) {
-                    errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
-                    type = Type.Unknown
-                }
-                if (!right.type.isPrimitive) {
-                    errors.add(CompileError.UnsupportedOperator(op, right.type, right.ctx.text, right.ctx.getStart().line, right.ctx.getStart().charPositionInLine))
+                if (!left.type.isPrimitive || !right.type.isPrimitive) {
+                    if (left.type !is Type.Unknown || right.type !is Type.Unknown) {
+                        errors.add(CompileError.TypeMismatchInBinaryOperator(op, left.type, right.type, ctx.text, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                    }
                     type = Type.Unknown
                 } else {
                     type = Type.Bool
                 }
             }
             is Op.Plus -> {
-                if (left.type != Type.Integer && left.type != Type.Str) {
-                    errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
+                if (left.type != Type.Integer && left.type != Type.Str || right.type != Type.Integer && right.type != Type.Str) {
+                    if (left.type !is Type.Unknown || right.type !is Type.Unknown) {
+                        errors.add(CompileError.TypeMismatchInBinaryOperator(op, left.type, right.type, ctx.text, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                    }
                     type = Type.Unknown
-                }
-                if (right.type != Type.Integer && right.type != Type.Str) {
-                    errors.add(CompileError.UnsupportedOperator(op, right.type, right.ctx.text, right.ctx.getStart().line, right.ctx.getStart().charPositionInLine))
-                    type = Type.Unknown
-                }
-                if (left.type == Type.Integer && right.type == Type.Integer) {
+                } else if (left.type == Type.Integer && right.type == Type.Integer) {
                     type = Type.Integer
                 } else if (left.type == Type.Str && right.type == Type.Str) {
                     type = Type.Str
                 }
             }
             is Op.IntOp -> {
-                if (left.type != Type.Integer) {
-                    errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
+                if (left.type != Type.Integer || right.type != Type.Integer) {
+                    if (left.type !is Type.Unknown || right.type !is Type.Unknown) {
+                        errors.add(CompileError.TypeMismatchInBinaryOperator(op, left.type, right.type, ctx.text, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                    }
                     type = Type.Unknown
-                }
-                if (right.type != Type.Integer) {
-                    errors.add(CompileError.UnsupportedOperator(op, right.type, right.ctx.text, right.ctx.getStart().line, right.ctx.getStart().charPositionInLine))
-                    type = Type.Unknown
-                }
-                if (left.type == Type.Integer && right.type == Type.Integer) {
+                } else if (left.type == Type.Integer && right.type == Type.Integer) {
                     if (op is Op.CmpOp) {
                         type = Type.Bool
                     } else {
@@ -64,12 +55,10 @@ class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx:
                 }
             }
             is Op.BoolOp -> {
-                if (left.type != Type.Bool) {
-                    errors.add(CompileError.UnsupportedOperator(op, left.type, left.ctx.text, left.ctx.getStart().line, left.ctx.getStart().charPositionInLine))
-                    type = Type.Unknown
-                }
-                if (right.type != Type.Bool) {
-                    errors.add(CompileError.UnsupportedOperator(op, right.type, right.ctx.text, right.ctx.getStart().line, right.ctx.getStart().charPositionInLine))
+                if (left.type != Type.Bool || right.type != Type.Bool) {
+                    if (left.type !is Type.Unknown || right.type !is Type.Unknown) {
+                        errors.add(CompileError.TypeMismatchInBinaryOperator(op, left.type, right.type, ctx.text, ctx.getStart().line, ctx.getStart().charPositionInLine))
+                    }
                     type = Type.Unknown
                 }
                 if (left.type == Type.Bool && right.type == Type.Bool) {
@@ -78,7 +67,9 @@ class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx:
             }
         }
         if (left.type != right.type) {
-            errors.add(CompileError.TypeMismatchInBinaryOperator(op, left.type, right.type, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            if (left.type !is Type.Unknown || right.type !is Type.Unknown) {
+                errors.add(CompileError.TypeMismatchInBinaryOperator(op, left.type, right.type, ctx.text, ctx.getStart().line, ctx.getStart().charPositionInLine))
+            }
             type = Type.Unknown
         }
         return errors

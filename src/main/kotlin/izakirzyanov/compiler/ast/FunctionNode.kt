@@ -3,7 +3,6 @@ package izakirzyanov.compiler.ast
 import izakirzyanov.compiler.Scope
 import izakirzyanov.compiler.ast.statement.BlockNode
 import izakirzyanov.compiler.errors.CompileError
-import izakirzyanov.compiler.errors.CompileError.DuplicatedArgument
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
 import java.util.*
@@ -15,7 +14,7 @@ class FunctionNode(val signature: FunctionSignatureNode, val body: BlockNode, ct
         scope.beginNewScope()
         signature.arguments?.forEach {
             if (args.contains(it.name)) {
-                errors.add(DuplicatedArgument(it.name, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
+                errors.add(CompileError.VariableIsAlreadyDefinedInThisScope(it.name, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
             }
             args.add(it.name)
             scope.putVariableWithOverride(it.name, it.type)
