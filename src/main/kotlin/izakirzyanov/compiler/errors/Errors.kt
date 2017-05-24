@@ -32,7 +32,7 @@ sealed class CompileError(message: String, val line: Int, val column: Int) : Exc
             CompileError("in call of function \"$name\" expected \"$expected\" type but actually passed \"$actual\" as argument.", line, column)
 
     class FunctionMayNotReturnValue(func: String, line: Int, column: Int) :
-            CompileError("function \"$func\" may not return value somewhere but should.", line, column)
+            CompileError("function \"$func\" may not return expr somewhere but should.", line, column)
 
     class ReturnTypeMismatch(func: String, actual: Type, expected: Type, line: Int, column: Int) :
             CompileError("function \"$func\" returns \"$actual\" but expected \"$expected\".", line, column)

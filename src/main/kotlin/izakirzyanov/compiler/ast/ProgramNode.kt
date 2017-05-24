@@ -1,8 +1,9 @@
 package izakirzyanov.compiler.ast
 
-import izakirzyanov.compiler.Scope
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.errors.CompileError.FunctionIsAlreadyDefined
+import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.FieldVisitor
@@ -10,15 +11,19 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
-class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<GlobalVarNode>, ctx: ParserRuleContext) : ASTNode(ctx) {
-
-    fun checkForErrorsAndTypes(): List<CompileError> {
+class ProgramNode(val functions: ArrayList<FunctionNode>, val globalVars: ArrayList<GlobalVarNode>, ctx: ParserRuleContext) : ASTNode(ctx) {
+    fun checkForErrorsAndInferType(): List<CompileError> {
         val scope = Scope()
         val functionsList = HashMap<String, FunctionNode>()
+        return checkForErrorsAndInferType(scope, functionsList)
+    }
+
+
+    override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
 
         globalVars.forEach {
-            errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
+            errors.addAll(it.checkForErrorsAndInferType(scope, functionsList))
         }
 
         functions.forEach {
@@ -33,7 +38,7 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
         }
 
         functions.forEach {
-            errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
+            errors.addAll(it.checkForErrorsAndInferType(scope, functionsList))
         }
         val main = functionsList["main"]
         if (main == null) {
@@ -51,6 +56,27 @@ class ProgramNode(val functions: List<FunctionNode>, val globalVars: List<Global
         }))
 
         return errors
+    }
+
+    override fun <T>simplify(scope: OptimizationScope): SimplifyResult<T> {
+        var changed = false
+        globalVars.forEach {
+            val res = it.simplify<GlobalVarNode>(scope)
+            assert(res.newNode == null)
+            changed = changed || res.changed
+        }
+
+        functions.forEach {
+            val res = it.simplify<FunctionNode>(scope)
+            assert(res.newNode == null)
+            changed = changed || res.changed
+        }
+        return SimplifyResult(null, changed)
+    }
+
+    fun simplify() {
+        while (simplify<ProgramNode>(OptimizationScope()).changed) {
+        }
     }
 
     fun getByteCode(className: String): ByteArray {

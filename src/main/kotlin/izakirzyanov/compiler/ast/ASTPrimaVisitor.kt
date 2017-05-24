@@ -4,12 +4,13 @@ import izakirzyanov.compiler.PrimaBaseVisitor
 import izakirzyanov.compiler.PrimaParser
 import izakirzyanov.compiler.ast.expr.*
 import izakirzyanov.compiler.ast.statement.*
+import java.util.*
 
 class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     override fun visitProgram(ctx: PrimaParser.ProgramContext): ProgramNode {
-        val functions = ctx.functionDeclaration().map { visitFunctionDeclaration(it) }.toList()
-        val globalVars = ctx.globalVarDeclaration().map { visitGlobalVarDeclaration(it) }.toList()
-        return ProgramNode(functions, globalVars, ctx)
+        val functions = ctx.functionDeclaration().map { visitFunctionDeclaration(it) }
+        val globalVars = ctx.globalVarDeclaration().map { visitGlobalVarDeclaration(it) }
+        return ProgramNode(ArrayList(functions), ArrayList(globalVars), ctx)
     }
 
     override fun visitGlobalVarDeclaration(ctx: PrimaParser.GlobalVarDeclarationContext): GlobalVarNode {
@@ -79,7 +80,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
                 ctx.name.text,
                 ctx.arrayType().text.toTypeNode() as Type.Arr<*>,
                 ctx.arrayInitializer().primitiveType().text.toTypeNode(),
-                ctx.arrayInitializer().sizes.map { visitEXPR(it) }.toList(),
+                ArrayList(ctx.arrayInitializer().sizes.map { visitEXPR(it) }),
                 ctx
         )
     }
@@ -134,7 +135,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitFunctionCallStatement(ctx: PrimaParser.FunctionCallStatementContext): FunctionCallStatementNode {
-        val arguments = ctx.functionCall().argumentList()?.expr()?.map { visitEXPR(it) }?.toList()
+        val arguments = ctx.functionCall().argumentList()?.expr()?.map { visitEXPR(it) } ?: emptyList()
         return FunctionCallStatementNode(ctx.functionCall().name.text, arguments, ctx)
     }
 

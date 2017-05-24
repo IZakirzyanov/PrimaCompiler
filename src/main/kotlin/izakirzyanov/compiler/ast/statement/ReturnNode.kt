@@ -1,7 +1,8 @@
 package izakirzyanov.compiler.ast.statement
 
-import izakirzyanov.compiler.Scope
+import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
+import izakirzyanov.compiler.ast.ASTNode
 import izakirzyanov.compiler.ast.FunctionNode
 import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.ast.expr.ExprNode
@@ -11,7 +12,7 @@ import org.objectweb.asm.Opcodes.ARETURN
 import org.objectweb.asm.Opcodes.IRETURN
 import java.util.*
 
-class ReturnNode(val value: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx) {
+class ReturnNode(val value: ExprNode, ctx: ParserRuleContext) : ASTNode(ctx), StatementNode {
     lateinit var funName: String
 
     override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {

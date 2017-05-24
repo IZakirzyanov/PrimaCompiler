@@ -1,32 +1,33 @@
 package izakirzyanov.compiler.ast
 
-import izakirzyanov.compiler.Scope
 import izakirzyanov.compiler.ast.statement.BlockNode
 import izakirzyanov.compiler.errors.CompileError
+import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
 class FunctionNode(val signature: FunctionSignatureNode, val body: BlockNode, ctx: ParserRuleContext) : ASTNode(ctx) {
-    fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+    override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
-        val args = HashSet<String>()
+        errors.addAll(signature.checkForErrorsAndInferType(scope, functionsList))
         scope.beginNewScope()
-        signature.arguments?.forEach {
-            if (args.contains(it.name)) {
-                errors.add(CompileError.VariableIsAlreadyDefinedInThisScope(it.name, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
-            }
-            args.add(it.name)
-            scope.putVariableWithOverride(it.name, it.type)
-        }
         body.setNameOfFunInReturn(signature.name)
         if (!body.alwaysReturns() && signature.type != Type.Void) {
             errors.add(CompileError.FunctionMayNotReturnValue(signature.name, ctx.getStart().line, ctx.getStart().charPositionInLine))
         }
-
-        errors.addAll(body.checkForErrorsAndTypes(scope, functionsList))
+        errors.addAll(body.checkForErrorsAndInferType(scope, functionsList))
         scope.endScope()
         return errors
+    }
+
+    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
+        val signatureRes = signature.simplify<FunctionSignatureNode>(scope)
+        assert(signatureRes.newNode == null)
+        val bodyRes = body.simplify<BlockNode>(scope)
+        assert(bodyRes.newNode == null)
+        return SimplifyResult(null, signatureRes.changed || bodyRes.changed)
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
@@ -46,23 +47,29 @@ class FunctionNode(val signature: FunctionSignatureNode, val body: BlockNode, ct
 }
 
 class FunctionSignatureNode(val name: String, val arguments: List<ArgumentNode>? = null, val type: Type, ctx: ParserRuleContext) : ASTNode(ctx) {
-    override fun toString(): String {
-        return "fun " + name + "(" + argumentsToString() + "): " + type.toString()
+    override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+        val errors = ArrayList<CompileError>()
+        val args = HashSet<String>()
+
+        arguments?.forEach {
+            if (args.contains(it.name)) {
+                errors.add(CompileError.VariableIsAlreadyDefinedInThisScope(it.name, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
+            }
+            args.add(it.name)
+            scope.putVariableWithOverride(it.name, it.type)
+        }
+        return errors
     }
 
-    private fun argumentsToString(): String {
-        if (arguments == null) {
-            return ""
-        } else {
-            return arguments.joinToString(", ")
-        }
+    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
+        return SimplifyResult(null, false)
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
         if (name == "main") {
             scope.varNums++
         }
-        arguments?.forEach { scope.putVariableWithOverride(it.name, it.type) }
+        arguments?.forEach { it.generateByteCode(helper, scope, functionsList) }
         helper.mv = helper.cw.visitMethod(ACC_PUBLIC + ACC_STATIC, name, this.toJVMType(), null, null)
     }
 
@@ -74,13 +81,25 @@ class FunctionSignatureNode(val name: String, val arguments: List<ArgumentNode>?
         }
     }
 
+    override fun toString(): String {
+        return "fun " + name + "(" + (arguments?.joinToString(", ") ?: "") + "): " + type.toString()
+    }
 }
 
 class ArgumentNode(val name: String, val type: Type, ctx: ParserRuleContext) : ASTNode(ctx) {
+    override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+        return emptyList()
+    }
+
+    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
+        return SimplifyResult(null, false)
+    }
+
+    override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+        scope.putVariableWithOverride(name, type)
+    }
+
     override fun toString(): String {
         return "$name: $type"
     }
-
-    override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {}
-
 }

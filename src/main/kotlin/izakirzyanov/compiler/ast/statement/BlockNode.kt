@@ -1,17 +1,17 @@
 package izakirzyanov.compiler.ast.statement
 
 import izakirzyanov.compiler.PrimaParser
-import izakirzyanov.compiler.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
+import izakirzyanov.compiler.ast.SimplifyResult
 import izakirzyanov.compiler.errors.CompileError
+import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class BlockNode(val statements: ArrayList<StatementNode> = ArrayList(), ctx: ParserRuleContext) : StatementNode(ctx) {
-
-    override fun checkForErrorsAndTypes(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
+    override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.beginNewScope()
         }
@@ -20,7 +20,7 @@ class BlockNode(val statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
             if (it is ReturnNode && it != statements.last()) {
                 errors.add(CompileError.DeadCodeAfterReturn(it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
             }
-            errors.addAll(it.checkForErrorsAndTypes(scope, functionsList))
+            errors.addAll(it.checkForErrorsAndInferType(scope, functionsList))
         }
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.endScope()
@@ -28,12 +28,39 @@ class BlockNode(val statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
         return errors
     }
 
+    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
+        if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
+            scope.beginNewScope()
+        }
+        var res: SimplifyResult<StatementNode>
+        var changed = false
+        statements.forEach {
+            res = it.simplify(scope)
+            assert(res.newNode == null)
+            changed = changed || res.changed
+        }
+        if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
+            scope.endScope()
+        }
+        return SimplifyResult(null, changed)
+    }
+
+    override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
+        if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
+            scope.beginNewScope()
+        }
+        statements?.forEach { it.generateByteCode(helper, scope, functionsList) }
+        if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
+            scope.endScope()
+        }
+    }
+
     fun addStatementToBody(statement: StatementNode) {
         statements.add(statement)
     }
 
     fun setNameOfFunInReturn(name: String) {
-        statements?.forEach {
+        statements.forEach {
             when (it) {
                 is BlockNode -> it.setNameOfFunInReturn(name)
                 is IfNode -> it.setNameOfFunInReturn(name)
@@ -44,7 +71,7 @@ class BlockNode(val statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
     }
 
     fun alwaysReturns(): Boolean {
-        statements?.forEach {
+        statements.forEach {
             if (it is BlockNode) {
                 if (it.alwaysReturns()) {
                     return true
@@ -65,15 +92,5 @@ class BlockNode(val statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
             }
         }
         return false
-    }
-
-    override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
-        if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
-            scope.beginNewScope()
-        }
-        statements?.forEach { it.generateByteCode(helper, scope, functionsList) }
-        if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
-            scope.endScope()
-        }
     }
 }

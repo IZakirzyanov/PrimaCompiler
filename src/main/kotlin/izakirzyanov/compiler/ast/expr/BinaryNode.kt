@@ -1,6 +1,6 @@
 package izakirzyanov.compiler.ast.expr
 
-import izakirzyanov.compiler.Scope
+import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
 import izakirzyanov.compiler.ast.Op

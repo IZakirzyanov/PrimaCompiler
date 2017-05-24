@@ -1,8 +1,7 @@
-package izakirzyanov.compiler
+package izakirzyanov.compiler.scope
 
 import izakirzyanov.compiler.ast.Type
 import java.util.*
-import kotlin.collections.ArrayList
 
 class Scope {
     private val scopesStack: ArrayList<MutableMap<String, Pair<Type, Int>>> = ArrayList()

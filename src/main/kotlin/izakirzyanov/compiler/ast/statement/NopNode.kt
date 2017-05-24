@@ -1,6 +1,6 @@
 package izakirzyanov.compiler.ast.statement
 
-import izakirzyanov.compiler.Scope
+import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
 import izakirzyanov.compiler.errors.CompileError
