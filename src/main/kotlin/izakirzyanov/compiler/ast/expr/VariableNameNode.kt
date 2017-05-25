@@ -31,7 +31,10 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
     }
 
     override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-        variablesScope.getValue(name)!!.rused++
+        val varInfo = variablesScope.getValue(name)
+        if (varInfo != null) {
+            varInfo.rused++
+        }
 
         val constInfo = constantScope.getValue(name)
         if (constInfo == null) {
@@ -70,5 +73,9 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
                 helper.mv!!.visitVarInsn(ALOAD, scope.getVarNum(name))
             }
         }
+    }
+
+    override fun hasFunctionCalls(): Boolean {
+        return false
     }
 }

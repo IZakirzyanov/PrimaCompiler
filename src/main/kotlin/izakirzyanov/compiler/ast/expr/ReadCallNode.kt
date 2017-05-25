@@ -43,4 +43,7 @@ class ReadCallNode(override var type: Type, ctx: ParserRuleContext) : ExprNode(c
         }
     }
 
+    override fun hasFunctionCalls(): Boolean {
+        return false
+    }
 }

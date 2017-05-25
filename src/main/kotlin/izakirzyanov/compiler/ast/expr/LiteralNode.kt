@@ -31,6 +31,10 @@ sealed class LiteralNode(val value: Any, ctx: ParserRuleContext) : ExprNode(ctx)
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
             helper.mv!!.visitInsn(if (value as Boolean) ICONST_1 else ICONST_0)
         }
+
+        override fun hasFunctionCalls(): Boolean {
+            return false
+        }
     }
 
     class IntLiteralNode(value: Int, ctx: ParserRuleContext) : LiteralNode(value, ctx) {
@@ -52,6 +56,9 @@ sealed class LiteralNode(val value: Any, ctx: ParserRuleContext) : ExprNode(ctx)
             helper.mv!!.visitLdcInsn(value as Int)
         }
 
+        override fun hasFunctionCalls(): Boolean {
+            return false
+        }
     }
 
     class StrLiteralNode(value: String, ctx: ParserRuleContext) : LiteralNode(value, ctx) {
@@ -74,6 +81,10 @@ sealed class LiteralNode(val value: Any, ctx: ParserRuleContext) : ExprNode(ctx)
             helper.mv!!.visitInsn(DUP)
             helper.mv!!.visitLdcInsn(value as String)
             helper.mv!!.visitMethodInsn(INVOKESPECIAL, "java/lang/String", "<init>", "(Ljava/lang/String;)V", false)
+        }
+
+        override fun hasFunctionCalls(): Boolean {
+            return false
         }
     }
 }

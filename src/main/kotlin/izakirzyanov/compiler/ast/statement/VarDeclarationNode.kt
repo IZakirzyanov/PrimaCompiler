@@ -61,6 +61,10 @@ sealed class VarDeclarationNode(val name: String, ctx: ParserRuleContext) : Stat
                 helper.mv!!.visitVarInsn(ASTORE, scope.getVarNum(name))
             }
         }
+
+        fun hasFunctionCalls(): Boolean {
+            return expr.hasFunctionCalls()
+        }
     }
 
     class ArrayVarDeclarationNode(name: String, val type: Type.Arr<*>, val constructorPrimitiveType: Type, var sizes: List<ExprNode>, ctx: ParserRuleContext) : VarDeclarationNode(name, ctx) {

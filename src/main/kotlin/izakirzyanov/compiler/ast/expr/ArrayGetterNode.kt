@@ -70,4 +70,10 @@ class ArrayGetterNode(val name: String, var indices: List<ExprNode>, ctx: Parser
             helper.mv!!.visitInsn(AALOAD)
         }
     }
+
+    override fun hasFunctionCalls(): Boolean {
+        return indices.fold(false, {acc, it ->
+            acc || it.hasFunctionCalls()
+        })
+    }
 }

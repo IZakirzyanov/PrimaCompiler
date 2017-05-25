@@ -37,7 +37,7 @@ class WhileNode(var condition: ExprNode, var body: BlockNode, ctx: ParserRuleCon
         countLeftAndRightUsesOnly(constantScope, variablesScope)
         constantScope.removeAllUpdatedVars()
         //new scopes here
-        val resBody = body.simplify(OptimizationScope(), variablesScope, useGlobalVars)
+        val resBody = body.simplify(OptimizationScope(), OptimizationScope(), useGlobalVars)
         if (resBody.newNode != null) {
             body = resBody.newNode as BlockNode
         }

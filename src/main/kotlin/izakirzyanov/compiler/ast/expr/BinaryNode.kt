@@ -352,4 +352,8 @@ class BinaryNode(val op: Op.BinOp, var left: ExprNode, var right: ExprNode, ctx:
             }
         }
     }
+
+    override fun hasFunctionCalls(): Boolean {
+        return left.hasFunctionCalls() || right.hasFunctionCalls()
+    }
 }

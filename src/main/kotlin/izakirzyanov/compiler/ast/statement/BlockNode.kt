@@ -54,13 +54,13 @@ class BlockNode(var statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
         newStatements = ArrayList()
         statements.forEach {
             if (it is AssignmentNode) {
-                if (variablesScope.getValue(it.name)?.rused != 0) {
+                if (variablesScope.getValue(it.name)?.rused != 0 || it.hasFunctionCalls()) {
                     newStatements.add(it)
                 } else {
                     changed = true
                 }
-            } else if (it is VarDeclarationNode) {
-                if (variablesScope.getValue(it.name)?.rused != 0) {
+            } else if (it is VarDeclarationNode.PrimitiveVarDeclarationNode) {
+                if (variablesScope.getValue(it.name)?.rused != 0 || it.hasFunctionCalls()) {
                     newStatements.add(it)
                 } else {
                     changed = true

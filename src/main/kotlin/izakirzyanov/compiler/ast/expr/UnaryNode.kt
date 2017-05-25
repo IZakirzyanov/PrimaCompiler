@@ -89,4 +89,8 @@ class UnaryNode(val op: Op.UnOp, var expr: ExprNode, ctx: ParserRuleContext) : E
             }
         }
     }
+
+    override fun hasFunctionCalls(): Boolean {
+        return expr.hasFunctionCalls()
+    }
 }

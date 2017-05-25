@@ -48,11 +48,15 @@ class AssignmentNode(val name: String, var expr: ExprNode, ctx: ParserRuleContex
         } else {
             constantScope.removeIfExist(name)
         }
-        val info = constantScope.getValue(name)
-        if (info != null) {
-            info.lused++
+        val constInfo = constantScope.getValue(name)
+        if (constInfo != null) {
+            constInfo.lused++
         }
-        variablesScope.getValue(name)!!.lused++
+
+        val varInfo = variablesScope.getValue(name)
+        if (varInfo != null) {
+            varInfo.lused++
+        }
         return SimplifyResult(null, res.changed)
     }
 
@@ -68,5 +72,9 @@ class AssignmentNode(val name: String, var expr: ExprNode, ctx: ParserRuleContex
                 helper.mv!!.visitVarInsn(ASTORE, scope.getVarNum(name))
             }
         }
+    }
+
+    fun hasFunctionCalls(): Boolean {
+        return expr.hasFunctionCalls()
     }
 }

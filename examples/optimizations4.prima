@@ -1,0 +1,9 @@
+fun f(): int {
+    return 1;
+}
+
+fun main(): void {
+   var b: int = 1;
+   var a: int = b + f();
+   writeln(b);
+}

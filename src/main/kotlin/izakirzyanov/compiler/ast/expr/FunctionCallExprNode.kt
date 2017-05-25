@@ -60,4 +60,8 @@ class FunctionCallExprNode(val name: String, var arguments: List<ExprNode>, ctx:
         arguments.forEach { it.generateByteCode(helper, scope, functionsList) }
         helper.mv!!.visitMethodInsn(INVOKESTATIC, helper.className, name, functionsList[name]?.signature?.toJVMType(), false)
     }
+
+    override fun hasFunctionCalls(): Boolean {
+        return true
+    }
 }
