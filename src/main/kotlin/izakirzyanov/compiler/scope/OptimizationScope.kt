@@ -5,7 +5,7 @@ import java.util.*
 
 class OptimizationScope {
 
-    data class varInfo(val value: Any?, val type: Type, var lused: Int, var rused: Int, var useInPropagation: Boolean)
+    data class varInfo(var value: Any?, val type: Type, var lused: Int, var rused: Int, var useInPropagation: Boolean)
 
     private val scopesStack: ArrayList<MutableMap<String, varInfo>> = ArrayList()
 
@@ -21,7 +21,14 @@ class OptimizationScope {
         scopesStack.removeAt(scopesStack.lastIndex)
     }
 
-    fun putIfNotExist(name: String, type: Type, value: Any?) {
+    fun updateIfCan(name: String, value: Any?) {
+        val last = scopesStack.findLast { it.containsKey(name) }
+        if (last != null && last[name]?.useInPropagation ?: false) {
+            last[name]?.value = value
+        }
+    }
+
+    fun put(name: String, type: Type, value: Any?) {
         //global vars aren't used in propagation by default
         if (scopesStack.last()[name] == null) {
             if (scopesStack.size == 1) {
@@ -36,7 +43,7 @@ class OptimizationScope {
         scopesStack.findLast { it.containsKey(name) }?.remove(name)
     }
 
-    fun getValue(name: String) : varInfo? {
+    fun getValue(name: String): varInfo? {
         return scopesStack.findLast { it.containsKey(name) }?.get(name)
     }
 
@@ -46,7 +53,7 @@ class OptimizationScope {
 
     fun removeAllUpdatedVars() {
         for (scope in scopesStack) {
-            scope.entries.removeIf{e -> e.value.lused > 0}
+            scope.entries.removeIf { e -> e.value.lused > 0 }
         }
     }
 }

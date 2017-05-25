@@ -32,12 +32,11 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
 
     override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         val varInfo = variablesScope.getValue(name)
-        if (varInfo != null) {
-            varInfo.rused++
-        }
-
         val constInfo = constantScope.getValue(name)
         if (constInfo == null) {
+            if (varInfo != null) {
+                varInfo.rused++
+            }
             return SimplifyResult(null, false)
         } else {
             if (constInfo.useInPropagation || !(!useGlobalVars && constantScope.isGlobal(name))) {
@@ -55,6 +54,9 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
                 }
                 return SimplifyResult(newNode, newNode != null)
             } else {
+                if (varInfo != null) {
+                    varInfo.rused++
+                }
                 constInfo.rused++
                 return SimplifyResult(null, false)
             }

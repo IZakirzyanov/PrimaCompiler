@@ -2,7 +2,7 @@ fun main(): void {
    var a: int = 1;
    var i: int = 0;
    while (i < 10) {
-      a = 1;
+      a = 2;
       i = i + 1;
    }
    writeln(i);

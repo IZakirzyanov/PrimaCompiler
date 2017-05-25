@@ -1,0 +1,10 @@
+fun f(a: bool, b: bool): void {
+    writeln(a);
+    writeln(b);
+}
+
+fun main(): void {
+   var a: bool = false;
+   var b: bool = readBool();
+   f(a, b);
+}

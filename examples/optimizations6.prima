@@ -1,0 +1,14 @@
+fun main(): void {
+    var a: int = 1;
+    writeln(a);
+    a = 2;
+    writeln(a);
+    a = 3;
+    writeln(a);
+    a = 4;
+    writeln(a);
+    a = 5;
+    writeln(a);
+    a = 6;
+    writeln(a);
+}

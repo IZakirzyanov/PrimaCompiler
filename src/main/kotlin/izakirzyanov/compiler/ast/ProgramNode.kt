@@ -92,6 +92,8 @@ class ProgramNode(val functions: ArrayList<FunctionNode>, var globalVars: ArrayL
             if (varInfo.rused > 0) {
                 newGlobalVars.add(it)
             } else {
+                constantScope.removeIfExist(it.varNode.name)
+                variablesScope.removeIfExist(it.varNode.name)
                 changed = true
             }
             varInfo.lused = 0

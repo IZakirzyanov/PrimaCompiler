@@ -43,15 +43,16 @@ class AssignmentNode(val name: String, var expr: ExprNode, ctx: ParserRuleContex
             expr = res.newNode as ExprNode
         }
 
-        if (expr is LiteralNode) {
-            constantScope.putIfNotExist(name, expr.type, (expr as LiteralNode).value)
-        } else {
-            constantScope.removeIfExist(name)
-        }
         val constInfo = constantScope.getValue(name)
         if (constInfo != null) {
+            if (expr is LiteralNode) {
+                constantScope.updateIfCan(name, (expr as LiteralNode).value)
+            } else {
+                constantScope.removeIfExist(name)
+            }
             constInfo.lused++
         }
+
 
         val varInfo = variablesScope.getValue(name)
         if (varInfo != null) {

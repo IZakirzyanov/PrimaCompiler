@@ -45,9 +45,9 @@ sealed class VarDeclarationNode(val name: String, ctx: ParserRuleContext) : Stat
                 expr = res.newNode as ExprNode
             }
 
-            variablesScope.putIfNotExist(name, expr.type, null)
+            variablesScope.put(name, expr.type, null)
             if (expr is LiteralNode) {
-                constantScope.putIfNotExist(name, type, (expr as LiteralNode).value)
+                constantScope.put(name, type, (expr as LiteralNode).value)
             }
             return SimplifyResult(null, res.changed)
         }
