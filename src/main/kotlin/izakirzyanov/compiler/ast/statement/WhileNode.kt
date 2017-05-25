@@ -1,6 +1,5 @@
 package izakirzyanov.compiler.ast.statement
 
-import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
 import izakirzyanov.compiler.ast.SimplifyResult
@@ -8,6 +7,7 @@ import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.ast.expr.ExprNode
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.GOTO
@@ -28,9 +28,9 @@ class WhileNode(var condition: ExprNode, var body: BlockNode, ctx: ParserRuleCon
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         //new scope here
-        val resBody = body.simplify(OptimizationScope())
+        val resBody = body.simplify(OptimizationScope(), useGlobalVars)
         if (resBody.newNode != null) {
             body = resBody.newNode as BlockNode
         }

@@ -40,12 +40,12 @@ class FunctionCallStatementNode(val name: String, var arguments: List<ExprNode>,
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         val newArguments = ArrayList<ExprNode>()
         var res: SimplifyResult
         var changed = false
         arguments.forEach {
-            res = it.simplify(scope)
+            res = it.simplify(scope, useGlobalVars)
             newArguments.add(res.newNode as? ExprNode ?: it)
             changed = changed || res.changed
         }

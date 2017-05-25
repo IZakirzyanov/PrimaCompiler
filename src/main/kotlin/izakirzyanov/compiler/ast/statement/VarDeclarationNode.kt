@@ -1,6 +1,9 @@
 package izakirzyanov.compiler.ast.statement
 
-import izakirzyanov.compiler.ast.*
+import izakirzyanov.compiler.ast.ASMHelper
+import izakirzyanov.compiler.ast.FunctionNode
+import izakirzyanov.compiler.ast.SimplifyResult
+import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.ast.expr.ExprNode
 import izakirzyanov.compiler.ast.expr.LiteralNode
 import izakirzyanov.compiler.errors.CompileError
@@ -11,8 +14,8 @@ import org.objectweb.asm.Opcodes.ASTORE
 import org.objectweb.asm.Opcodes.ISTORE
 import java.util.*
 
-sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
-    class PrimitiveVarDeclarationNode(val name: String, val type: Type, var expr: ExprNode, ctx: ParserRuleContext) : VarDeclarationNode(ctx) {
+sealed class VarDeclarationNode(val name: String, ctx: ParserRuleContext) : StatementNode(ctx) {
+    class PrimitiveVarDeclarationNode(name: String, val type: Type, var expr: ExprNode, ctx: ParserRuleContext) : VarDeclarationNode(name, ctx) {
         override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
             if (scope.isReserved(name)) {
@@ -32,8 +35,8 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
             return errors
         }
 
-        override fun simplify(scope: OptimizationScope): SimplifyResult {
-            val res = expr.simplify(scope)
+        override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+            val res = expr.simplify(scope, useGlobalVars)
             if (res.newNode != null) {
                 expr = res.newNode as ExprNode
             }
@@ -55,7 +58,7 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
         }
     }
 
-    class ArrayVarDeclarationNode(val name: String, val type: Type.Arr<*>, val constructorPrimitiveType: Type, var sizes: List<ExprNode>, ctx: ParserRuleContext) : VarDeclarationNode(ctx) {
+    class ArrayVarDeclarationNode(name: String, val type: Type.Arr<*>, val constructorPrimitiveType: Type, var sizes: List<ExprNode>, ctx: ParserRuleContext) : VarDeclarationNode(name, ctx) {
         override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
             sizes.forEach { errors.addAll(it.checkForErrorsAndInferType(scope, functionsList)) }
@@ -73,12 +76,12 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
             return errors
         }
 
-        override fun simplify(scope: OptimizationScope): SimplifyResult {
+        override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
             val newSizes = ArrayList<ExprNode>()
             var changed = false
             var res: SimplifyResult
             sizes.forEach {
-                res = it.simplify(scope)
+                res = it.simplify(scope, useGlobalVars)
                 newSizes.add(res.newNode as? ExprNode ?: it)
                 changed = changed || res.changed
             }

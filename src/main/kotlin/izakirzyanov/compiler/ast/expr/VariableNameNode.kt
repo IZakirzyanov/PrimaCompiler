@@ -1,16 +1,15 @@
 package izakirzyanov.compiler.ast.expr
 
-import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
 import izakirzyanov.compiler.ast.SimplifyResult
 import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
@@ -22,26 +21,29 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
-        if (!scope.isGlobal(name)) {
-            val res = scope.getValue(name)
-            var newNode: LiteralNode? = null
-            if (res != null) {
-                when (res.type) {
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        val info = scope.getValue(name)
+        if (info == null) {
+            return SimplifyResult(null, false)
+        } else {
+            info.rused++
+            if (info.useInPropagation || !(!useGlobalVars && scope.isGlobal(name))) {
+                var newNode: LiteralNode? = null
+                when (info.type) {
                     is Type.Integer -> {
-                        newNode = LiteralNode.IntLiteralNode(res.value as Int, ParserRuleContext())
+                        newNode = LiteralNode.IntLiteralNode(info.value as Int, ParserRuleContext())
                     }
                     is Type.Bool -> {
-                        newNode = LiteralNode.BoolLiteralNode(res.value as Boolean, ParserRuleContext())
+                        newNode = LiteralNode.BoolLiteralNode(info.value as Boolean, ParserRuleContext())
                     }
                     is Type.Str -> {
-                        newNode = LiteralNode.StrLiteralNode(res.value as String, ParserRuleContext())
+                        newNode = LiteralNode.StrLiteralNode(info.value as String, ParserRuleContext())
                     }
                 }
+                return SimplifyResult(newNode, newNode != null)
+            } else {
+                return SimplifyResult(null, false)
             }
-            return SimplifyResult(newNode, newNode != null)
-        } else {
-            return SimplifyResult(null, false)
         }
     }
 

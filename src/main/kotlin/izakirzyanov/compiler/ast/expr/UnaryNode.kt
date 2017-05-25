@@ -1,9 +1,9 @@
 package izakirzyanov.compiler.ast.expr
 
 import izakirzyanov.compiler.ast.*
-import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
@@ -38,10 +38,10 @@ class UnaryNode(val op: Op.UnOp, var expr: ExprNode, ctx: ParserRuleContext) : E
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         var newNode: ExprNode? = null
 
-        val res = expr.simplify(scope)
+        val res = expr.simplify(scope, useGlobalVars)
         if (res.newNode != null) {
             expr = res.newNode as ExprNode
         }

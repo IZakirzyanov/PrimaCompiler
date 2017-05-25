@@ -1,12 +1,12 @@
 package izakirzyanov.compiler.ast.expr
 
-import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
 import izakirzyanov.compiler.ast.SimplifyResult
 import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
 import java.util.*
@@ -30,12 +30,12 @@ class ArrayGetterNode(val name: String, var indices: List<ExprNode>, ctx: Parser
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         val newIndices = ArrayList<ExprNode>()
         var changed = false
         var resIn: SimplifyResult
         indices.forEach {
-            resIn = it.simplify(scope)
+            resIn = it.simplify(scope, useGlobalVars)
             newIndices.add((resIn.newNode as? ExprNode) ?: it)
             changed = changed || resIn.changed
         }

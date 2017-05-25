@@ -11,7 +11,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
-class ProgramNode(val functions: ArrayList<FunctionNode>, val globalVars: ArrayList<GlobalVarNode>, ctx: ParserRuleContext) : ASTNode(ctx) {
+class ProgramNode(val functions: ArrayList<FunctionNode>, var globalVars: ArrayList<GlobalVarNode>, ctx: ParserRuleContext) : ASTNode(ctx) {
     fun checkForErrorsAndInferType(): List<CompileError> {
         val scope = Scope()
         val functionsList = HashMap<String, FunctionNode>()
@@ -58,24 +58,42 @@ class ProgramNode(val functions: ArrayList<FunctionNode>, val globalVars: ArrayL
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult{
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult{
         var changed = false
         globalVars.forEach {
-            val res = it.simplify(scope)
+            val res = it.simplify(scope, true)
             assert(res.newNode == null)
             changed = changed || res.changed
         }
 
         functions.forEach {
-            val res = it.simplify(scope)
+            val res = it.simplify(scope, false)
             assert(res.newNode == null)
             changed = changed || res.changed
         }
+
+        val newGlobalVars: ArrayList<GlobalVarNode> = ArrayList()
+        globalVars.forEach {
+            val info: OptimizationScope.ConstantInfo = scope.getValue(it.varNode.name)!!
+            if (info.lused == 0) {
+                info.useInPropagation = true
+                changed = true
+            }
+            if (info.rused > 0) {
+                newGlobalVars.add(it)
+            } else {
+                changed = true
+            }
+        }
+        globalVars = newGlobalVars
         return SimplifyResult(null, changed)
     }
 
     fun simplify() {
-        while (simplify(OptimizationScope()).changed) {
+        //global stays there during all iterations
+        val scope = OptimizationScope()
+
+        while (simplify(scope, false).changed) {
         }
     }
 

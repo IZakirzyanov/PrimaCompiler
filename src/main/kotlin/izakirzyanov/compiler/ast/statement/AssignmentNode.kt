@@ -28,14 +28,18 @@ class AssignmentNode(val name: String, var expr: ExprNode, ctx: ParserRuleContex
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
-        val res = expr.simplify(scope)
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        val res = expr.simplify(scope, useGlobalVars)
         if (res.newNode != null) {
             expr = res.newNode as ExprNode
         }
 
         if (expr is LiteralNode) {
             scope.putVariableWithOverride(name, expr.type, (expr as LiteralNode).value)
+        }
+        val info = scope.getValue(name)
+        if (info != null) {
+            info.lused++
         }
         return SimplifyResult(null, res.changed)
     }

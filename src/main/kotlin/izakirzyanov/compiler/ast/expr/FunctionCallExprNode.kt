@@ -1,12 +1,12 @@
 package izakirzyanov.compiler.ast.expr
 
-import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
 import izakirzyanov.compiler.ast.SimplifyResult
 import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.INVOKESTATIC
 import java.util.*
@@ -38,12 +38,12 @@ class FunctionCallExprNode(val name: String, var arguments: List<ExprNode>, ctx:
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         val newArguments = ArrayList<ExprNode>()
         var res: SimplifyResult
         var changed = false
         arguments.forEach {
-            res = it.simplify(scope)
+            res = it.simplify(scope, useGlobalVars)
             newArguments.add((res.newNode as? ExprNode) ?: it)
             changed = changed || res.changed
         }
@@ -53,7 +53,7 @@ class FunctionCallExprNode(val name: String, var arguments: List<ExprNode>, ctx:
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
-        arguments?.forEach { it.generateByteCode(helper, scope, functionsList) }
+        arguments.forEach { it.generateByteCode(helper, scope, functionsList) }
         helper.mv!!.visitMethodInsn(INVOKESTATIC, helper.className, name, functionsList[name]?.signature?.toJVMType(), false)
     }
 }

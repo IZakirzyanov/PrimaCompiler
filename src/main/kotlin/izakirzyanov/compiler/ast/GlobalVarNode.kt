@@ -13,8 +13,8 @@ class GlobalVarNode(val varNode: VarDeclarationNode, ctx: ParserRuleContext) : A
         return varNode.checkForErrorsAndInferType(scope, functionsList)
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
-        val res = varNode.simplify(scope)
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        val res = varNode.simplify(scope, useGlobalVars)
         assert(res.newNode == null)
         return SimplifyResult(null, res.changed)
     }

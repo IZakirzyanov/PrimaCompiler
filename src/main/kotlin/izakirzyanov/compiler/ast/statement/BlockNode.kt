@@ -9,7 +9,6 @@ import izakirzyanov.compiler.scope.OptimizationScope
 import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import java.util.*
-import kotlin.collections.ArrayList
 
 class BlockNode(var statements: ArrayList<StatementNode> = ArrayList(), ctx: ParserRuleContext) : StatementNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
@@ -29,20 +28,40 @@ class BlockNode(var statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.beginNewScope()
         }
-        val newStatements: ArrayList<StatementNode> = ArrayList()
+        var newStatements: ArrayList<StatementNode> = ArrayList()
         var res: SimplifyResult
         var changed = false
         statements.forEach {
             if (it !is NopNode) {
-                res = it.simplify(scope)
+                res = it.simplify(scope, useGlobalVars)
                 newStatements.add(res.newNode as? StatementNode ?: it)
                 changed = changed || res.changed
             } else {
                 changed = true
+            }
+        }
+        statements = newStatements
+
+        newStatements = ArrayList()
+        statements.forEach {
+            if (it is AssignmentNode) {
+                if (scope.getValue(it.name)?.rused != 0) {
+                    newStatements.add(it)
+                } else {
+                    changed = true
+                }
+            } else if (it is VarDeclarationNode) {
+                if (scope.getValue(it.name)?.rused != 0) {
+                    newStatements.add(it)
+                } else {
+                    changed = true
+                }
+            } else {
+                newStatements.add(it)
             }
         }
         statements = newStatements
@@ -56,7 +75,7 @@ class BlockNode(var statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.beginNewScope()
         }
-        statements?.forEach { it.generateByteCode(helper, scope, functionsList) }
+        statements.forEach { it.generateByteCode(helper, scope, functionsList) }
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.endScope()
         }

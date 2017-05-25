@@ -1,10 +1,13 @@
 package izakirzyanov.compiler.ast.statement
 
-import izakirzyanov.compiler.ast.*
-import izakirzyanov.compiler.scope.Scope
+import izakirzyanov.compiler.ast.ASMHelper
+import izakirzyanov.compiler.ast.FunctionNode
+import izakirzyanov.compiler.ast.SimplifyResult
+import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.ast.expr.ExprNode
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.ARETURN
 import org.objectweb.asm.Opcodes.IRETURN
@@ -26,8 +29,8 @@ class ReturnNode(var expr: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
-        val res = expr.simplify(scope)
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        val res = expr.simplify(scope, useGlobalVars)
         if (res.newNode != null) {
             expr = res.newNode as ExprNode
         }

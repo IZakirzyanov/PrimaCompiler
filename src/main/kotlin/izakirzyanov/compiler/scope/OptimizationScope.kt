@@ -5,7 +5,7 @@ import java.util.*
 
 class OptimizationScope {
 
-    data class ConstantInfo(val value: Any, val type: Type, val lused: Int, val rused: Int)
+    data class ConstantInfo(val value: Any, val type: Type, var lused: Int, var rused: Int, var useInPropagation: Boolean, var eliminated: Boolean)
 
     private val scopesStack: ArrayList<MutableMap<String, ConstantInfo>> = ArrayList()
 
@@ -22,7 +22,12 @@ class OptimizationScope {
     }
 
     fun putVariableWithOverride(name: String, type: Type, value: Any) {
-        scopesStack.last()[name] = ConstantInfo(value, type, 0, 0)
+        //global vars aren't used in propagation by default
+        if (scopesStack.size == 1) {
+            scopesStack.last()[name] = ConstantInfo(value, type, 0, 0, false, false)
+        } else {
+            scopesStack.last()[name] = ConstantInfo(value, type, 0, 0, true, false)
+        }
     }
 
     fun getValue(name: String) : ConstantInfo? {

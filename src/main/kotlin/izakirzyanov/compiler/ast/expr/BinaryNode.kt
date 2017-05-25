@@ -1,9 +1,9 @@
 package izakirzyanov.compiler.ast.expr
 
 import izakirzyanov.compiler.ast.*
-import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.scope.OptimizationScope
+import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
@@ -73,15 +73,15 @@ class BinaryNode(val op: Op.BinOp, var left: ExprNode, var right: ExprNode, ctx:
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         var newNode: ExprNode? = null
 
-        val resL = left.simplify(scope)
+        val resL = left.simplify(scope, useGlobalVars)
         if (resL.newNode != null) {
             left = resL.newNode as ExprNode
         }
 
-        val resR = right.simplify(scope)
+        val resR = right.simplify(scope, useGlobalVars)
         if (resR.newNode != null) {
             right = resR.newNode as ExprNode
         }
@@ -98,7 +98,7 @@ class BinaryNode(val op: Op.BinOp, var left: ExprNode, var right: ExprNode, ctx:
                 }
             }
             Op.Minus -> {
-                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                if ((left is LiteralNode.IntLiteralNode) && (right is LiteralNode.IntLiteralNode)) {
                     newNode = LiteralNode.IntLiteralNode(left.value as Int - right.value as Int, ParserRuleContext())
                 }
             }
@@ -122,6 +122,8 @@ class BinaryNode(val op: Op.BinOp, var left: ExprNode, var right: ExprNode, ctx:
                 if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
                     newNode = LiteralNode.IntLiteralNode(left.value as Int % right.value as Int, ParserRuleContext())
                 } else if (left is LiteralNode.IntLiteralNode && left.value as Int == 0) {
+                    newNode = LiteralNode.IntLiteralNode(0, ParserRuleContext())
+                } else if (right is LiteralNode.IntLiteralNode && right.value as Int == 0) {
                     newNode = LiteralNode.IntLiteralNode(0, ParserRuleContext())
                 }
             }

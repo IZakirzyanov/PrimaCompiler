@@ -31,8 +31,8 @@ class IfNode(var condition: ExprNode, var thenBlock: BlockNode, var elseBlock: B
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope): SimplifyResult {
-        val resCond = condition.simplify(scope)
+    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        val resCond = condition.simplify(scope, useGlobalVars)
         if (resCond.newNode != null) {
             condition = resCond.newNode as ExprNode
         }
@@ -40,12 +40,12 @@ class IfNode(var condition: ExprNode, var thenBlock: BlockNode, var elseBlock: B
         val condition = condition
         if (condition is LiteralNode.BoolLiteralNode) {
             if (condition.value as Boolean) {
-                val resThen = thenBlock.simplify(scope)
+                val resThen = thenBlock.simplify(scope, useGlobalVars)
                 return SimplifyResult(resThen.newNode ?: thenBlock, true)
             } else {
                 val elseBlock = elseBlock
                 if (elseBlock != null) {
-                    val resElse = elseBlock.simplify(scope)
+                    val resElse = elseBlock.simplify(scope, useGlobalVars)
                     return SimplifyResult(resElse.newNode ?: elseBlock, true)
                 } else {
                     return SimplifyResult(NopNode(ParserRuleContext()), true)
@@ -53,8 +53,8 @@ class IfNode(var condition: ExprNode, var thenBlock: BlockNode, var elseBlock: B
             }
         }
 
-        val resThen = thenBlock.simplify(scope)
-        val resElse = elseBlock?.simplify(scope)
+        val resThen = thenBlock.simplify(scope, useGlobalVars)
+        val resElse = elseBlock?.simplify(scope, useGlobalVars)
 
         if (resThen.newNode != null) {
             if ((resThen.newNode as BlockNode).statements.isEmpty()) {
