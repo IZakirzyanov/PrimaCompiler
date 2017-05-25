@@ -33,10 +33,11 @@ class Compiler {
             System.exit(1)
         }
         val program = parse(fileName)
-        val errors = program.checkForErrorsAndTypes()
+        val errors = program.checkForErrorsAndInferType()
         if (errors.isNotEmpty()) {
             errors.forEach { System.err.println(it) }
         } else {
+            program.simplify()
             val clazz = fileName.dropLast(6) + ".class"
             File(clazz).writeBytes(program.getByteCode(fileName.dropLast(6)))
             println("COMPILED TO \"$clazz\" SUCCESSFULLY!")

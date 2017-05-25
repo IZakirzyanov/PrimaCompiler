@@ -28,11 +28,11 @@ class BlockNode(val statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
         return errors
     }
 
-    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.beginNewScope()
         }
-        var res: SimplifyResult<StatementNode>
+        var res: SimplifyResult
         var changed = false
         statements.forEach {
             res = it.simplify(scope)

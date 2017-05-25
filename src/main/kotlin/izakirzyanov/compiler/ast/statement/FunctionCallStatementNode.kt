@@ -40,9 +40,9 @@ class FunctionCallStatementNode(val name: String, var arguments: List<ExprNode>,
         return errors
     }
 
-    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
         val newArguments = ArrayList<ExprNode>()
-        var res: SimplifyResult<ExprNode>
+        var res: SimplifyResult
         var changed = false
         arguments.forEach {
             res = it.simplify(scope)
@@ -55,7 +55,7 @@ class FunctionCallStatementNode(val name: String, var arguments: List<ExprNode>,
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
-        arguments?.forEach { it.generateByteCode(helper, scope, functionsList) }
+        arguments.forEach { it.generateByteCode(helper, scope, functionsList) }
         helper.mv!!.visitMethodInsn(INVOKESTATIC, helper.className, name, functionsList[name]?.signature?.toJVMType(), false)
         if (functionsList[name]?.signature?.type != Type.Void) {
             helper.mv!!.visitInsn(POP)

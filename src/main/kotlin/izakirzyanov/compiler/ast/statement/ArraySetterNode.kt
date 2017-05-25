@@ -38,18 +38,18 @@ class ArraySetterNode(val name: String, var indices: List<ExprNode>, var expr: E
         return errors
     }
 
-    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
         val newIndices = ArrayList<ExprNode>()
         var changed = false
-        var resIn: SimplifyResult<ExprNode>
+        var resIn: SimplifyResult
         indices.forEach {
-            resIn = it.simplify<ExprNode>(scope)
+            resIn = it.simplify(scope)
             newIndices.add(resIn.newNode ?: it)
             changed = changed || resIn.changed
         }
         indices = newIndices
 
-        val res = expr.simplify<ExprNode>(scope)
+        val res = expr.simplify(scope)
         if (res.newNode != null) {
             expr = res.newNode
         }

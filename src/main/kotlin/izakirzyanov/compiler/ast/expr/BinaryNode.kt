@@ -1,17 +1,15 @@
 package izakirzyanov.compiler.ast.expr
 
+import izakirzyanov.compiler.ast.*
 import izakirzyanov.compiler.scope.Scope
-import izakirzyanov.compiler.ast.ASMHelper
-import izakirzyanov.compiler.ast.FunctionNode
-import izakirzyanov.compiler.ast.Op
-import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
+import izakirzyanov.compiler.scope.OptimizationScope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
-class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx: ParserRuleContext) : ExprNode(ctx) {
+class BinaryNode(val op: Op.BinOp, var left: ExprNode, var right: ExprNode, ctx: ParserRuleContext) : ExprNode(ctx) {
 
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
@@ -74,6 +72,115 @@ class BinaryNode(val op: Op.BinOp, val left: ExprNode, val right: ExprNode, ctx:
         }
         return errors
     }
+
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
+        var newNode: ExprNode? = null
+
+        val resL = left.simplify(scope)
+        if (resL.newNode != null) {
+            left = resL.newNode
+        }
+
+        val resR = right.simplify(scope)
+        if (resR.newNode != null) {
+            right = resR.newNode
+        }
+
+        val left = left
+        val right = right
+        when (op) {
+            Op.Plus -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.IntLiteralNode(left.value as Int + right.value as Int, ParserRuleContext())
+                }
+                if (left is LiteralNode.StrLiteralNode && right is LiteralNode.StrLiteralNode) {
+                    newNode = LiteralNode.StrLiteralNode(left.value as String + right.value as String, ParserRuleContext())
+                }
+            }
+            Op.Minus -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.IntLiteralNode(left.value as Int - right.value as Int, ParserRuleContext())
+                }
+            }
+            Op.Mult -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.IntLiteralNode(left.value as Int * right.value as Int, ParserRuleContext())
+                } else if (left is LiteralNode.IntLiteralNode && left.value as Int == 0) {
+                    newNode = LiteralNode.IntLiteralNode(0, ParserRuleContext())
+                } else if (right is LiteralNode.IntLiteralNode && right.value as Int == 0) {
+                    newNode = LiteralNode.IntLiteralNode(0, ParserRuleContext())
+                }
+            }
+            Op.Div -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.IntLiteralNode(left.value as Int / right.value as Int, ParserRuleContext())
+                } else if (left is LiteralNode.IntLiteralNode && left.value as Int == 0) {
+                    newNode = LiteralNode.IntLiteralNode(0, ParserRuleContext())
+                }
+            }
+            Op.Mod -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.IntLiteralNode(left.value as Int % right.value as Int, ParserRuleContext())
+                } else if (left is LiteralNode.IntLiteralNode && left.value as Int == 0) {
+                    newNode = LiteralNode.IntLiteralNode(0, ParserRuleContext())
+                }
+            }
+            Op.And -> {
+                if (left is LiteralNode.BoolLiteralNode && right is LiteralNode.BoolLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as Boolean && right.value as Boolean, ParserRuleContext())
+                }
+            }
+            Op.Or -> {
+                if (left is LiteralNode.BoolLiteralNode && right is LiteralNode.BoolLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as Boolean || right.value as Boolean, ParserRuleContext())
+                }
+            }
+            Op.EQ -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as Int == right.value as Int, ParserRuleContext())
+                }
+                if (left is LiteralNode.StrLiteralNode && right is LiteralNode.StrLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as String == right.value as String, ParserRuleContext())
+                }
+                if (left is LiteralNode.BoolLiteralNode && right is LiteralNode.BoolLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as Boolean == right.value as Boolean, ParserRuleContext())
+                }
+            }
+            Op.NE -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as Int != right.value as Int, ParserRuleContext())
+                }
+                if (left is LiteralNode.StrLiteralNode && right is LiteralNode.StrLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as String != right.value as String, ParserRuleContext())
+                }
+                if (left is LiteralNode.BoolLiteralNode && right is LiteralNode.BoolLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as Boolean != right.value as Boolean, ParserRuleContext())
+                }
+            }
+            Op.GT -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as Int > right.value as Int, ParserRuleContext())
+                }
+            }
+            Op.GE -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as Int >= right.value as Int, ParserRuleContext())
+                }
+            }
+            Op.LT -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode((left.value as Int) < (right.value as Int), ParserRuleContext())
+                }
+            }
+            Op.LE -> {
+                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(left.value as Int <= right.value as Int, ParserRuleContext())
+                }
+            }
+        }
+        return SimplifyResult(newNode, resL.changed || resR.changed || newNode != null)
+    }
+
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
         when (op) {

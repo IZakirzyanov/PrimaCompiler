@@ -1,17 +1,15 @@
 package izakirzyanov.compiler.ast.expr
 
+import izakirzyanov.compiler.ast.*
 import izakirzyanov.compiler.scope.Scope
-import izakirzyanov.compiler.ast.ASMHelper
-import izakirzyanov.compiler.ast.FunctionNode
-import izakirzyanov.compiler.ast.Op
-import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
+import izakirzyanov.compiler.scope.OptimizationScope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
-class UnaryNode(val op: Op.UnOp, val expr: ExprNode, ctx: ParserRuleContext) : ExprNode(ctx) {
+class UnaryNode(val op: Op.UnOp, var expr: ExprNode, ctx: ParserRuleContext) : ExprNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
         errors.addAll(expr.checkForErrorsAndInferType(scope, functionsList))
@@ -38,6 +36,35 @@ class UnaryNode(val op: Op.UnOp, val expr: ExprNode, ctx: ParserRuleContext) : E
             }
         }
         return errors
+    }
+
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
+        var newNode: ExprNode? = null
+
+        val res = expr.simplify(scope)
+        if (res.newNode != null) {
+            expr = res.newNode
+        }
+
+        val expr = expr
+        when (op) {
+            Op.UnPlus -> {
+                if (expr is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.IntLiteralNode(expr.value as Int, ParserRuleContext())
+                }
+            }
+            Op.UnMinus -> {
+                if (expr is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.IntLiteralNode(-(expr.value as Int), ParserRuleContext())
+                }
+            }
+            Op.Not -> {
+                if (expr is LiteralNode.BoolLiteralNode) {
+                    newNode = LiteralNode.BoolLiteralNode(!(expr.value as Boolean), ParserRuleContext())
+                }
+            }
+        }
+        return SimplifyResult(newNode, res.changed || newNode != null)
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {

@@ -3,17 +3,19 @@ package izakirzyanov.compiler.ast.expr
 import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
+import izakirzyanov.compiler.ast.SimplifyResult
 import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
+import izakirzyanov.compiler.scope.OptimizationScope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.INVOKESTATIC
 import java.util.*
 
-class FunctionCallExprNode(val name: String, val arguments: List<ExprNode>? = null, ctx: ParserRuleContext) : ExprNode(ctx) {
+class FunctionCallExprNode(val name: String, var arguments: List<ExprNode>, ctx: ParserRuleContext) : ExprNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
-        arguments?.forEach { errors.addAll(it.checkForErrorsAndInferType(scope, functionsList)) }
-        val argsActual = arguments ?: ArrayList()
+        arguments.forEach { errors.addAll(it.checkForErrorsAndInferType(scope, functionsList)) }
+        val argsActual = arguments
         val argsActuallyNum = argsActual.size
         val argsExpected = functionsList[name]?.signature?.arguments ?: ArrayList()
         val argsExpectedNum = argsExpected.size
@@ -34,6 +36,20 @@ class FunctionCallExprNode(val name: String, val arguments: List<ExprNode>? = nu
         }
         type = functionsList[name]?.signature?.type ?: Type.Unknown
         return errors
+    }
+
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
+        val newArguments = ArrayList<ExprNode>()
+        var res: SimplifyResult
+        var changed = false
+        arguments.forEach {
+            res = it.simplify(scope)
+            newArguments.add(res.newNode ?: it)
+            changed = changed || res.changed
+        }
+        arguments = newArguments
+
+        return SimplifyResult(null, changed)
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {

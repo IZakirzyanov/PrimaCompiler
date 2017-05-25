@@ -5,12 +5,12 @@ import java.util.*
 
 class OptimizationScope {
 
-    data class ConstantInfo<out T>(val value: T, val type: Type, val lused: Int, val rused: Int)
+    data class ConstantInfo(val value: Any, val type: Type, val lused: Int, val rused: Int)
 
-    private val scopesStack: ArrayList<MutableMap<String, ConstantInfo<*>>> = ArrayList()
+    private val scopesStack: ArrayList<MutableMap<String, ConstantInfo>> = ArrayList()
 
     init {
-        scopesStack.add(HashMap<String, ConstantInfo<*>>())
+        scopesStack.add(HashMap<String, ConstantInfo>())
     }
 
     fun beginNewScope() {
@@ -21,12 +21,12 @@ class OptimizationScope {
         scopesStack.removeAt(scopesStack.lastIndex)
     }
 
-    fun <T> putVariableWithOverride(name: String, type: Type, value: T) {
+    fun putVariableWithOverride(name: String, type: Type, value: Any) {
         scopesStack.last()[name] = ConstantInfo(value, type, 0, 0)
     }
 
-    fun getValue(name: String) : Any {
-        return scopesStack.findLast { it.containsKey(name) }!![name]!!.value!!
+    fun getValue(name: String) : ConstantInfo? {
+        return scopesStack.findLast { it.containsKey(name) }?.get(name)
     }
 
     fun isGlobal(name: String): Boolean {

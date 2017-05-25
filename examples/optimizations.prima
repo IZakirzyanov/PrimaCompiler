@@ -1,0 +1,10 @@
+var a: int = 1 + 2;
+var b: int = a - 3;
+
+fun main(): void {
+    var c: int = b * (747 + 654 + 300) - 1;
+    var s: str = "five" + " is ";
+    write(s);
+    writeln(c + 6);
+}
+

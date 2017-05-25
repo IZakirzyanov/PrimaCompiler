@@ -58,16 +58,16 @@ class ProgramNode(val functions: ArrayList<FunctionNode>, val globalVars: ArrayL
         return errors
     }
 
-    override fun <T>simplify(scope: OptimizationScope): SimplifyResult<T> {
+    override fun simplify(scope: OptimizationScope): SimplifyResult{
         var changed = false
         globalVars.forEach {
-            val res = it.simplify<GlobalVarNode>(scope)
+            val res = it.simplify(scope)
             assert(res.newNode == null)
             changed = changed || res.changed
         }
 
         functions.forEach {
-            val res = it.simplify<FunctionNode>(scope)
+            val res = it.simplify(scope)
             assert(res.newNode == null)
             changed = changed || res.changed
         }
@@ -75,7 +75,7 @@ class ProgramNode(val functions: ArrayList<FunctionNode>, val globalVars: ArrayL
     }
 
     fun simplify() {
-        while (simplify<ProgramNode>(OptimizationScope()).changed) {
+        while (simplify(OptimizationScope()).changed) {
         }
     }
 

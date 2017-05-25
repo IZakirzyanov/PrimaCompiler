@@ -22,10 +22,10 @@ class FunctionNode(val signature: FunctionSignatureNode, val body: BlockNode, ct
         return errors
     }
 
-    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
-        val signatureRes = signature.simplify<FunctionSignatureNode>(scope)
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
+        val signatureRes = signature.simplify(scope)
         assert(signatureRes.newNode == null)
-        val bodyRes = body.simplify<BlockNode>(scope)
+        val bodyRes = body.simplify(scope)
         assert(bodyRes.newNode == null)
         return SimplifyResult(null, signatureRes.changed || bodyRes.changed)
     }
@@ -61,7 +61,7 @@ class FunctionSignatureNode(val name: String, val arguments: List<ArgumentNode>?
         return errors
     }
 
-    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
         return SimplifyResult(null, false)
     }
 
@@ -91,7 +91,7 @@ class ArgumentNode(val name: String, val type: Type, ctx: ParserRuleContext) : A
         return emptyList()
     }
 
-    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
         return SimplifyResult(null, false)
     }
 

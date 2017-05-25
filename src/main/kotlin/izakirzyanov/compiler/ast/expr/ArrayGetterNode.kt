@@ -3,13 +3,15 @@ package izakirzyanov.compiler.ast.expr
 import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
+import izakirzyanov.compiler.ast.SimplifyResult
 import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
+import izakirzyanov.compiler.scope.OptimizationScope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
-class ArrayGetterNode(val name: String, val indices: List<ExprNode>, ctx: ParserRuleContext) : ExprNode(ctx) {
+class ArrayGetterNode(val name: String, var indices: List<ExprNode>, ctx: ParserRuleContext) : ExprNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
         val fullType = scope.getType(name)
@@ -26,6 +28,20 @@ class ArrayGetterNode(val name: String, val indices: List<ExprNode>, ctx: Parser
         }
         type = (fullType as? Type.Arr<*>)?.getSubType(indices) ?: Type.Unknown
         return errors
+    }
+
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
+        val newIndices = ArrayList<ExprNode>()
+        var changed = false
+        var resIn: SimplifyResult
+        indices.forEach {
+            resIn = it.simplify(scope)
+            newIndices.add(resIn.newNode ?: it)
+            changed = changed || resIn.changed
+        }
+        indices = newIndices
+
+        return SimplifyResult(null, changed)
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {

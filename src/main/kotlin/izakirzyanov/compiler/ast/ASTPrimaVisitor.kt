@@ -52,7 +52,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
 
     override fun visitBlock(ctx: PrimaParser.BlockContext): BlockNode {
         val statements = if (ctx.statement() != null) {
-             ArrayList(ctx.statement().map { visitStatement(it) })
+            ArrayList(ctx.statement().map { visitStatement(it) })
         } else {
             ArrayList()
         }
@@ -151,7 +151,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
             return LiteralNode.IntLiteralNode(ctx.intLiteral().text.toInt(), ctx)
         }
         if (ctx.stringLiteral() != null) {
-            return LiteralNode.StringLiteralNode(ctx.stringLiteral().text.toString().drop(1).dropLast(1), ctx)
+            return LiteralNode.StrLiteralNode(ctx.stringLiteral().text.toString().drop(1).dropLast(1), ctx)
         }
         throw RuntimeException("This should never happen")
     }
@@ -173,7 +173,7 @@ class ASTPrimaVisitor : PrimaBaseVisitor<ASTNode>() {
     }
 
     override fun visitEXPRFunctionCall(ctx: PrimaParser.EXPRFunctionCallContext): FunctionCallExprNode {
-        val arguments = ctx.functionCall().argumentList()?.expr()?.map { visitEXPR(it) }?.toList()
+        val arguments = ctx.functionCall().argumentList()?.expr()?.map { visitEXPR(it) } ?: emptyList()
         return FunctionCallExprNode(ctx.functionCall().name.text, arguments, ctx)
     }
 

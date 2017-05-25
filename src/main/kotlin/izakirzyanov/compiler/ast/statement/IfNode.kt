@@ -31,16 +31,16 @@ class IfNode(var condition: ExprNode, val thenBlock: BlockNode, val elseBlock: B
         return errors
     }
 
-    override fun <T> simplify(scope: OptimizationScope): SimplifyResult<T> {
-        val resCond = condition.simplify<ExprNode>(scope)
+    override fun simplify(scope: OptimizationScope): SimplifyResult {
+        val resCond = condition.simplify(scope)
         if (resCond.newNode != null) {
             condition = resCond.newNode
         }
 
-        val resThen = thenBlock.simplify<BlockNode>(scope)
+        val resThen = thenBlock.simplify(scope)
         assert(resThen.newNode == null)
 
-        val resElse = elseBlock?.simplify<BlockNode>(scope)
+        val resElse = elseBlock?.simplify(scope)
         assert(resElse?.newNode == null)
 
         return SimplifyResult(null, resCond.changed || resThen.changed || resElse?.changed ?: false)

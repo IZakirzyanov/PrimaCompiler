@@ -3,8 +3,10 @@ package izakirzyanov.compiler.ast.expr
 import izakirzyanov.compiler.scope.Scope
 import izakirzyanov.compiler.ast.ASMHelper
 import izakirzyanov.compiler.ast.FunctionNode
+import izakirzyanov.compiler.ast.SimplifyResult
 import izakirzyanov.compiler.ast.Type
 import izakirzyanov.compiler.errors.CompileError
+import izakirzyanov.compiler.scope.OptimizationScope
 import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
 import java.util.HashMap
@@ -12,6 +14,10 @@ import java.util.HashMap
 sealed class LiteralNode(val value: Any, ctx: ParserRuleContext) : ExprNode(ctx) {
 
     class BoolLiteralNode(value: Boolean, ctx: ParserRuleContext) : LiteralNode(value, ctx) {
+        override fun simplify(scope: OptimizationScope): SimplifyResult {
+            return SimplifyResult(null, false)
+        }
+
         init {
             type = Type.Bool
         }
@@ -26,6 +32,10 @@ sealed class LiteralNode(val value: Any, ctx: ParserRuleContext) : ExprNode(ctx)
     }
 
     class IntLiteralNode(value: Int, ctx: ParserRuleContext) : LiteralNode(value, ctx) {
+        override fun simplify(scope: OptimizationScope): SimplifyResult {
+            return SimplifyResult(null, false)
+        }
+
         init {
             type = Type.Integer
         }
@@ -40,7 +50,11 @@ sealed class LiteralNode(val value: Any, ctx: ParserRuleContext) : ExprNode(ctx)
 
     }
 
-    class StringLiteralNode(value: String, ctx: ParserRuleContext) : LiteralNode(value, ctx) {
+    class StrLiteralNode(value: String, ctx: ParserRuleContext) : LiteralNode(value, ctx) {
+        override fun simplify(scope: OptimizationScope): SimplifyResult {
+            return SimplifyResult(null, false)
+        }
+
         init {
             type = Type.Str
         }
