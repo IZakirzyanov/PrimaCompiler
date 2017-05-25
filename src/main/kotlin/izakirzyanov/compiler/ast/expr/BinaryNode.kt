@@ -78,12 +78,12 @@ class BinaryNode(val op: Op.BinOp, var left: ExprNode, var right: ExprNode, ctx:
 
         val resL = left.simplify(scope)
         if (resL.newNode != null) {
-            left = resL.newNode
+            left = resL.newNode as ExprNode
         }
 
         val resR = right.simplify(scope)
         if (resR.newNode != null) {
-            right = resR.newNode
+            right = resR.newNode as ExprNode
         }
 
         val left = left

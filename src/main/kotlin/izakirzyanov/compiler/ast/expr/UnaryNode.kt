@@ -43,7 +43,7 @@ class UnaryNode(val op: Op.UnOp, var expr: ExprNode, ctx: ParserRuleContext) : E
 
         val res = expr.simplify(scope)
         if (res.newNode != null) {
-            expr = res.newNode
+            expr = res.newNode as ExprNode
         }
 
         val expr = expr

@@ -35,7 +35,7 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
         override fun simplify(scope: OptimizationScope): SimplifyResult {
             val res = expr.simplify(scope)
             if (res.newNode != null) {
-                expr = res.newNode
+                expr = res.newNode as ExprNode
             }
 
             if (expr is LiteralNode) {
@@ -79,7 +79,7 @@ sealed class VarDeclarationNode(ctx: ParserRuleContext) : StatementNode(ctx) {
             var res: SimplifyResult
             sizes.forEach {
                 res = it.simplify(scope)
-                newSizes.add(res.newNode ?: it)
+                newSizes.add(res.newNode as? ExprNode ?: it)
                 changed = changed || res.changed
             }
             sizes = newSizes

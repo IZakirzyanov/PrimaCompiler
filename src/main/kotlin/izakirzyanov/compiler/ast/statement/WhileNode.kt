@@ -14,7 +14,7 @@ import org.objectweb.asm.Opcodes.GOTO
 import org.objectweb.asm.Opcodes.IFEQ
 import java.util.*
 
-class WhileNode(var condition: ExprNode, val body: BlockNode, ctx: ParserRuleContext) : StatementNode(ctx) {
+class WhileNode(var condition: ExprNode, var body: BlockNode, ctx: ParserRuleContext) : StatementNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
         errors.addAll(condition.checkForErrorsAndInferType(scope, functionsList))
@@ -31,7 +31,9 @@ class WhileNode(var condition: ExprNode, val body: BlockNode, ctx: ParserRuleCon
     override fun simplify(scope: OptimizationScope): SimplifyResult {
         //new scope here
         val resBody = body.simplify(OptimizationScope())
-        assert(resBody.newNode == null)
+        if (resBody.newNode != null) {
+            body = resBody.newNode as BlockNode
+        }
         return SimplifyResult(null, resBody.changed)
     }
 

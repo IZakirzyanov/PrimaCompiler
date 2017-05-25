@@ -4,6 +4,9 @@ var b: int = a - 3;
 fun main(): void {
     var c: int = b * (747 + 654 + 300) - 1;
     var s: str = "five" + " is ";
+    if (c > 0) {
+        writeln("shouldn't be here");
+    }
     write(s);
     writeln(c + 6);
 }

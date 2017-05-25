@@ -36,7 +36,7 @@ class ArrayGetterNode(val name: String, var indices: List<ExprNode>, ctx: Parser
         var resIn: SimplifyResult
         indices.forEach {
             resIn = it.simplify(scope)
-            newIndices.add(resIn.newNode ?: it)
+            newIndices.add((resIn.newNode as? ExprNode) ?: it)
             changed = changed || resIn.changed
         }
         indices = newIndices

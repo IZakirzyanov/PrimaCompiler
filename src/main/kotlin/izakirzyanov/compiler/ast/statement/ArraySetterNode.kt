@@ -44,14 +44,14 @@ class ArraySetterNode(val name: String, var indices: List<ExprNode>, var expr: E
         var resIn: SimplifyResult
         indices.forEach {
             resIn = it.simplify(scope)
-            newIndices.add(resIn.newNode ?: it)
+            newIndices.add((resIn.newNode as? ExprNode) ?: it)
             changed = changed || resIn.changed
         }
         indices = newIndices
 
         val res = expr.simplify(scope)
         if (res.newNode != null) {
-            expr = res.newNode
+            expr = res.newNode as ExprNode
         }
         changed = changed || res.changed
 

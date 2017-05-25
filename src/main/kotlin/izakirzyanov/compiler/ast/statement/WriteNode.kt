@@ -31,7 +31,7 @@ class WriteNode(val nextLine: Boolean = true, var expr: ExprNode? = null, ctx: P
         if (expr != null) {
             val res = expr.simplify(scope)
             if (res.newNode != null) {
-                this.expr = res.newNode
+                this.expr = res.newNode as ExprNode
             }
             return SimplifyResult(null, res.changed)
         }

@@ -46,7 +46,7 @@ class FunctionCallStatementNode(val name: String, var arguments: List<ExprNode>,
         var changed = false
         arguments.forEach {
             res = it.simplify(scope)
-            newArguments.add(res.newNode ?: it)
+            newArguments.add(res.newNode as? ExprNode ?: it)
             changed = changed || res.changed
         }
         arguments = newArguments

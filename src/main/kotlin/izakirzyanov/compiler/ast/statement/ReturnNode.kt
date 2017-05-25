@@ -29,7 +29,7 @@ class ReturnNode(var expr: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx
     override fun simplify(scope: OptimizationScope): SimplifyResult {
         val res = expr.simplify(scope)
         if (res.newNode != null) {
-            expr = res.newNode
+            expr = res.newNode as ExprNode
         }
 
         return SimplifyResult(null, res.changed)

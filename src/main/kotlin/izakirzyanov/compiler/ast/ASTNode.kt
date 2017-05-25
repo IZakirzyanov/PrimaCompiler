@@ -1,6 +1,5 @@
 package izakirzyanov.compiler.ast
 
-import izakirzyanov.compiler.ast.expr.ExprNode
 import izakirzyanov.compiler.errors.CompileError
 import izakirzyanov.compiler.scope.OptimizationScope
 import izakirzyanov.compiler.scope.Scope
@@ -18,4 +17,4 @@ abstract class ASTNode(val ctx: ParserRuleContext) {
 
 data class ASMHelper(val cw: ClassWriter, var fv: FieldVisitor?, var mv: MethodVisitor?, val className: String)
 
-data class SimplifyResult(val newNode: ExprNode?, val changed: Boolean)
+data class SimplifyResult(val newNode: ASTNode?, val changed: Boolean)

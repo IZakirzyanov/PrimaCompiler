@@ -9,8 +9,9 @@ import izakirzyanov.compiler.scope.OptimizationScope
 import izakirzyanov.compiler.scope.Scope
 import org.antlr.v4.runtime.ParserRuleContext
 import java.util.*
+import kotlin.collections.ArrayList
 
-class BlockNode(val statements: ArrayList<StatementNode> = ArrayList(), ctx: ParserRuleContext) : StatementNode(ctx) {
+class BlockNode(var statements: ArrayList<StatementNode> = ArrayList(), ctx: ParserRuleContext) : StatementNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.beginNewScope()
@@ -32,13 +33,19 @@ class BlockNode(val statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.beginNewScope()
         }
+        val newStatements: ArrayList<StatementNode> = ArrayList()
         var res: SimplifyResult
         var changed = false
         statements.forEach {
-            res = it.simplify(scope)
-            assert(res.newNode == null)
-            changed = changed || res.changed
+            if (it !is NopNode) {
+                res = it.simplify(scope)
+                newStatements.add(res.newNode as? StatementNode ?: it)
+                changed = changed || res.changed
+            } else {
+                changed = true
+            }
         }
+        statements = newStatements
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
             scope.endScope()
         }

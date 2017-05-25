@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.ParserRuleContext
 import org.objectweb.asm.Opcodes.*
 import java.util.*
 
-class FunctionNode(val signature: FunctionSignatureNode, val body: BlockNode, ctx: ParserRuleContext) : ASTNode(ctx) {
+class FunctionNode(val signature: FunctionSignatureNode, var body: BlockNode, ctx: ParserRuleContext) : ASTNode(ctx) {
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         val errors = ArrayList<CompileError>()
         errors.addAll(signature.checkForErrorsAndInferType(scope, functionsList))
@@ -26,7 +26,9 @@ class FunctionNode(val signature: FunctionSignatureNode, val body: BlockNode, ct
         val signatureRes = signature.simplify(scope)
         assert(signatureRes.newNode == null)
         val bodyRes = body.simplify(scope)
-        assert(bodyRes.newNode == null)
+        if (bodyRes.newNode != null) {
+            body = bodyRes.newNode as BlockNode
+        }
         return SimplifyResult(null, signatureRes.changed || bodyRes.changed)
     }
 
