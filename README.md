@@ -1,5 +1,5 @@
 # Prima language Compiler
-##### v. 0.3
+##### v. 0.4
 
 ## Features
 
@@ -17,6 +17,7 @@
 - `nop` 
 - user-defined functions (without overloading)
 - JVM as target platform (JAVA class is generated)
+- constant folding and constant propagation optimizations
 
 ## Build
 The project can be built with gradle
