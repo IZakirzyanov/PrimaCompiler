@@ -1,5 +1,5 @@
 # Prima language Compiler
-##### v. 0.4
+##### v. 0.5
 
 ## Features
 
@@ -29,7 +29,12 @@ Output class file will be named `[name].class` with class `[name]` inside.
 Use `java [name]` to run it
 
 Primitive type variable's declaration syntax (all variables are mutable): `var N:T = EXPR`.
+All variables must be initialized in the declaration.
+
 Array variable's declaration syntax (all variables are mutable): `var N:T[] = T[size]`, where `T: Primitive | T[]`.
+Default value for an array of `int` is `0`, for array of `bool` is `false`. For an array
+of str default value is not set: if you try to get uninitialized value of such array
+it is undefined behavior (NPE from JVM actually :) ).
 
 Function's declaration syntax: `fun [main]([N1]:[T1], ... ,[Nn]:[Tn]): type {}`.
 
