@@ -26,7 +26,6 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
         if (info == null) {
             return SimplifyResult(null, false)
         } else {
-            info.rused++
             if (info.useInPropagation || !(!useGlobalVars && scope.isGlobal(name))) {
                 var newNode: LiteralNode? = null
                 when (info.type) {
@@ -42,6 +41,7 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
                 }
                 return SimplifyResult(newNode, newNode != null)
             } else {
+                info.rused++
                 return SimplifyResult(null, false)
             }
         }

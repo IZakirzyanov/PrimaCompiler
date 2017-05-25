@@ -23,12 +23,14 @@ class FunctionNode(val signature: FunctionSignatureNode, var body: BlockNode, ct
     }
 
     override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        scope.beginNewScope()
         val signatureRes = signature.simplify(scope, useGlobalVars)
         assert(signatureRes.newNode == null)
         val bodyRes = body.simplify(scope, useGlobalVars)
         if (bodyRes.newNode != null) {
             body = bodyRes.newNode as BlockNode
         }
+        scope.endScope()
         return SimplifyResult(null, signatureRes.changed || bodyRes.changed)
     }
 

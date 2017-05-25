@@ -21,12 +21,14 @@ class OptimizationScope {
         scopesStack.removeAt(scopesStack.lastIndex)
     }
 
-    fun putVariableWithOverride(name: String, type: Type, value: Any) {
+    fun putIfNotExist(name: String, type: Type, value: Any) {
         //global vars aren't used in propagation by default
-        if (scopesStack.size == 1) {
-            scopesStack.last()[name] = ConstantInfo(value, type, 0, 0, false, false)
-        } else {
-            scopesStack.last()[name] = ConstantInfo(value, type, 0, 0, true, false)
+        if (scopesStack.last()[name] == null) {
+            if (scopesStack.size == 1) {
+                scopesStack.last()[name] = ConstantInfo(value, type, 0, 0, false, false)
+            } else {
+                scopesStack.last()[name] = ConstantInfo(value, type, 0, 0, true, false)
+            }
         }
     }
 

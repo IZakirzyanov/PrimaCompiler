@@ -76,14 +76,17 @@ class ProgramNode(val functions: ArrayList<FunctionNode>, var globalVars: ArrayL
         globalVars.forEach {
             val info: OptimizationScope.ConstantInfo = scope.getValue(it.varNode.name)!!
             if (info.lused == 0) {
+                if (!info.useInPropagation)
+                    changed = true
                 info.useInPropagation = true
-                changed = true
             }
             if (info.rused > 0) {
                 newGlobalVars.add(it)
             } else {
                 changed = true
             }
+            info.lused = 0
+            info.rused = 0
         }
         globalVars = newGlobalVars
         return SimplifyResult(null, changed)

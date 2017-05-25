@@ -1,0 +1,13 @@
+fun main(): void {
+    var a: int = 1 + 2;
+    var b: int = 2;
+    var c: int = 3;
+    var d: int = 4;
+    var e: int = a + b + c + d;
+    if (a < 2) {
+        a = 10;   
+    } else {
+        a = 20;
+    }
+    writeln(a);
+}

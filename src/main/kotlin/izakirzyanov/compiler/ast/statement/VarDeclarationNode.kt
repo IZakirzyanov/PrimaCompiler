@@ -42,7 +42,7 @@ sealed class VarDeclarationNode(val name: String, ctx: ParserRuleContext) : Stat
             }
 
             if (expr is LiteralNode) {
-                scope.putVariableWithOverride(name, type, (expr as LiteralNode).value)
+                scope.putIfNotExist(name, type, (expr as LiteralNode).value)
             }
             return SimplifyResult(null, res.changed)
         }

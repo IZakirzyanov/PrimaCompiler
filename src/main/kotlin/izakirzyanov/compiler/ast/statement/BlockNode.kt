@@ -60,7 +60,7 @@ class BlockNode(var statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
                 } else {
                     changed = true
                 }
-            } else {
+            } else if (it !is NopNode){
                 newStatements.add(it)
             }
         }

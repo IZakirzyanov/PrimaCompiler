@@ -35,7 +35,7 @@ class AssignmentNode(val name: String, var expr: ExprNode, ctx: ParserRuleContex
         }
 
         if (expr is LiteralNode) {
-            scope.putVariableWithOverride(name, expr.type, (expr as LiteralNode).value)
+            scope.putIfNotExist(name, expr.type, (expr as LiteralNode).value)
         }
         val info = scope.getValue(name)
         if (info != null) {

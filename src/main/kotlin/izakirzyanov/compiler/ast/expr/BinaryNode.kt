@@ -103,12 +103,12 @@ class BinaryNode(val op: Op.BinOp, var left: ExprNode, var right: ExprNode, ctx:
                 }
             }
             Op.Mult -> {
-                if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
-                    newNode = LiteralNode.IntLiteralNode(left.value as Int * right.value as Int, ParserRuleContext())
-                } else if (left is LiteralNode.IntLiteralNode && left.value as Int == 0) {
+                if (left is LiteralNode.IntLiteralNode && left.value as Int == 0) {
                     newNode = LiteralNode.IntLiteralNode(0, ParserRuleContext())
                 } else if (right is LiteralNode.IntLiteralNode && right.value as Int == 0) {
                     newNode = LiteralNode.IntLiteralNode(0, ParserRuleContext())
+                } else if (left is LiteralNode.IntLiteralNode && right is LiteralNode.IntLiteralNode) {
+                    newNode = LiteralNode.IntLiteralNode(left.value as Int * right.value as Int, ParserRuleContext())
                 }
             }
             Op.Div -> {
