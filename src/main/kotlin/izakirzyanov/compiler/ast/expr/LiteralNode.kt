@@ -14,10 +14,6 @@ import java.util.*
 sealed class LiteralNode(val value: Any, ctx: ParserRuleContext) : ExprNode(ctx) {
 
     class BoolLiteralNode(value: Boolean, ctx: ParserRuleContext) : LiteralNode(value, ctx) {
-        override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-            return SimplifyResult(null, false)
-        }
-
         init {
             type = Type.Bool
         }
@@ -26,22 +22,30 @@ sealed class LiteralNode(val value: Any, ctx: ParserRuleContext) : ExprNode(ctx)
             return emptyList()
         }
 
+        override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {}
+
+        override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+            return SimplifyResult(null, false)
+        }
+
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
             helper.mv!!.visitInsn(if (value as Boolean) ICONST_1 else ICONST_0)
         }
     }
 
     class IntLiteralNode(value: Int, ctx: ParserRuleContext) : LiteralNode(value, ctx) {
-        override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-            return SimplifyResult(null, false)
-        }
-
         init {
             type = Type.Integer
         }
 
         override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             return emptyList()
+        }
+
+        override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {}
+
+        override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+            return SimplifyResult(null, false)
         }
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
@@ -51,16 +55,18 @@ sealed class LiteralNode(val value: Any, ctx: ParserRuleContext) : ExprNode(ctx)
     }
 
     class StrLiteralNode(value: String, ctx: ParserRuleContext) : LiteralNode(value, ctx) {
-        override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-            return SimplifyResult(null, false)
-        }
-
         init {
             type = Type.Str
         }
 
         override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             return emptyList()
+        }
+
+        override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {}
+
+        override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+            return SimplifyResult(null, false)
         }
 
         override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {

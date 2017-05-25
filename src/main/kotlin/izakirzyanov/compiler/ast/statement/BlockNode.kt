@@ -28,16 +28,21 @@ class BlockNode(var statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        statements.forEach { it.countLeftAndRightUsesOnly(constantScope, variablesScope) }
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
-            scope.beginNewScope()
+            constantScope.beginNewScope()
+            variablesScope.beginNewScope()
         }
         var newStatements: ArrayList<StatementNode> = ArrayList()
         var res: SimplifyResult
         var changed = false
         statements.forEach {
             if (it !is NopNode) {
-                res = it.simplify(scope, useGlobalVars)
+                res = it.simplify(constantScope, variablesScope, useGlobalVars)
                 newStatements.add(res.newNode as? StatementNode ?: it)
                 changed = changed || res.changed
             } else {
@@ -49,13 +54,13 @@ class BlockNode(var statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
         newStatements = ArrayList()
         statements.forEach {
             if (it is AssignmentNode) {
-                if (scope.getValue(it.name)?.rused != 0) {
+                if (variablesScope.getValue(it.name)?.rused != 0) {
                     newStatements.add(it)
                 } else {
                     changed = true
                 }
             } else if (it is VarDeclarationNode) {
-                if (scope.getValue(it.name)?.rused != 0) {
+                if (variablesScope.getValue(it.name)?.rused != 0) {
                     newStatements.add(it)
                 } else {
                     changed = true
@@ -66,7 +71,8 @@ class BlockNode(var statements: ArrayList<StatementNode> = ArrayList(), ctx: Par
         }
         statements = newStatements
         if (ctx.parent !is PrimaParser.FunctionDeclarationContext) {
-            scope.endScope()
+            variablesScope.endScope()
+            constantScope.endScope()
         }
         return SimplifyResult(null, changed)
     }

@@ -22,16 +22,20 @@ class FunctionNode(val signature: FunctionSignatureNode, var body: BlockNode, ct
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-        scope.beginNewScope()
-        val signatureRes = signature.simplify(scope, useGlobalVars)
-        assert(signatureRes.newNode == null)
-        val bodyRes = body.simplify(scope, useGlobalVars)
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        body.countLeftAndRightUsesOnly(constantScope, variablesScope)
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        constantScope.beginNewScope()
+        variablesScope.beginNewScope()
+        val bodyRes = body.simplify(constantScope, variablesScope, useGlobalVars)
         if (bodyRes.newNode != null) {
             body = bodyRes.newNode as BlockNode
         }
-        scope.endScope()
-        return SimplifyResult(null, signatureRes.changed || bodyRes.changed)
+        variablesScope.endScope()
+        constantScope.endScope()
+        return SimplifyResult(null, bodyRes.changed)
     }
 
     override fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>) {
@@ -65,7 +69,9 @@ class FunctionSignatureNode(val name: String, val arguments: List<ArgumentNode>?
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {}
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         return SimplifyResult(null, false)
     }
 
@@ -95,7 +101,9 @@ class ArgumentNode(val name: String, val type: Type, ctx: ParserRuleContext) : A
         return emptyList()
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {}
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         return SimplifyResult(null, false)
     }
 

@@ -12,8 +12,9 @@ import java.util.*
 abstract class ASTNode(val ctx: ParserRuleContext) {
     abstract fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError>
 
+    abstract fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope)
     //make constant-folding and constant-propagation optimizations
-    abstract fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult
+    abstract fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult
 
     abstract fun generateByteCode(helper: ASMHelper, scope: Scope, functionsList: HashMap<String, FunctionNode>)
 }

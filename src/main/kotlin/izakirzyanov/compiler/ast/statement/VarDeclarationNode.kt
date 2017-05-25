@@ -35,14 +35,19 @@ sealed class VarDeclarationNode(val name: String, ctx: ParserRuleContext) : Stat
             return errors
         }
 
-        override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-            val res = expr.simplify(scope, useGlobalVars)
+        override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+            expr.countLeftAndRightUsesOnly(constantScope, variablesScope)
+        }
+
+        override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+            val res = expr.simplify(constantScope, variablesScope, useGlobalVars)
             if (res.newNode != null) {
                 expr = res.newNode as ExprNode
             }
 
+            variablesScope.putIfNotExist(name, expr.type, null)
             if (expr is LiteralNode) {
-                scope.putIfNotExist(name, type, (expr as LiteralNode).value)
+                constantScope.putIfNotExist(name, type, (expr as LiteralNode).value)
             }
             return SimplifyResult(null, res.changed)
         }
@@ -76,12 +81,16 @@ sealed class VarDeclarationNode(val name: String, ctx: ParserRuleContext) : Stat
             return errors
         }
 
-        override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+            sizes.forEach { it.countLeftAndRightUsesOnly(constantScope, variablesScope) }
+        }
+
+        override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
             val newSizes = ArrayList<ExprNode>()
             var changed = false
             var res: SimplifyResult
             sizes.forEach {
-                res = it.simplify(scope, useGlobalVars)
+                res = it.simplify(constantScope, variablesScope, useGlobalVars)
                 newSizes.add(res.newNode as? ExprNode ?: it)
                 changed = changed || res.changed
             }

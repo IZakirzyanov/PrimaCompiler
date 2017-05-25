@@ -29,8 +29,12 @@ class ReturnNode(var expr: ExprNode, ctx: ParserRuleContext) : StatementNode(ctx
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-        val res = expr.simplify(scope, useGlobalVars)
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        expr.countLeftAndRightUsesOnly(constantScope, variablesScope)
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        val res = expr.simplify(constantScope, variablesScope, useGlobalVars)
         if (res.newNode != null) {
             expr = res.newNode as ExprNode
         }

@@ -1,5 +1,5 @@
 # Prima language Compiler
-##### v. 0.5.1
+##### v. 0.6
 
 ## Features
 
@@ -18,7 +18,7 @@
 - user-defined functions (without overloading)
 - JVM as target platform (JAVA class is generated)
 - constant folding and constant propagation optimizations
-- some dead code elimination optimization also
+- dead code elimination optimization
 
 ## Build
 The project can be built with gradle

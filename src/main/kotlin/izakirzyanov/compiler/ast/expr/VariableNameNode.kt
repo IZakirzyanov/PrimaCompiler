@@ -21,27 +21,38 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-        val info = scope.getValue(name)
-        if (info == null) {
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        variablesScope.getValue(name)!!.rused++
+
+        val constInfo = constantScope.getValue(name)
+        if (constInfo != null) {
+            constInfo.rused++
+        }
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        variablesScope.getValue(name)!!.rused++
+
+        val constInfo = constantScope.getValue(name)
+        if (constInfo == null) {
             return SimplifyResult(null, false)
         } else {
-            if (info.useInPropagation || !(!useGlobalVars && scope.isGlobal(name))) {
+            if (constInfo.useInPropagation || !(!useGlobalVars && constantScope.isGlobal(name))) {
                 var newNode: LiteralNode? = null
-                when (info.type) {
+                when (constInfo.type) {
                     is Type.Integer -> {
-                        newNode = LiteralNode.IntLiteralNode(info.value as Int, ParserRuleContext())
+                        newNode = LiteralNode.IntLiteralNode(constInfo.value as Int, ParserRuleContext())
                     }
                     is Type.Bool -> {
-                        newNode = LiteralNode.BoolLiteralNode(info.value as Boolean, ParserRuleContext())
+                        newNode = LiteralNode.BoolLiteralNode(constInfo.value as Boolean, ParserRuleContext())
                     }
                     is Type.Str -> {
-                        newNode = LiteralNode.StrLiteralNode(info.value as String, ParserRuleContext())
+                        newNode = LiteralNode.StrLiteralNode(constInfo.value as String, ParserRuleContext())
                     }
                 }
                 return SimplifyResult(newNode, newNode != null)
             } else {
-                info.rused++
+                constInfo.rused++
                 return SimplifyResult(null, false)
             }
         }

@@ -58,35 +58,44 @@ class ProgramNode(val functions: ArrayList<FunctionNode>, var globalVars: ArrayL
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult{
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        TODO("no ways to use it")
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult{
         var changed = false
         globalVars.forEach {
-            val res = it.simplify(scope, true)
+            val res = it.simplify(constantScope, variablesScope, true)
             assert(res.newNode == null)
             changed = changed || res.changed
         }
 
         functions.forEach {
-            val res = it.simplify(scope, false)
+            val res = it.simplify(constantScope, variablesScope, false)
             assert(res.newNode == null)
             changed = changed || res.changed
         }
 
         val newGlobalVars: ArrayList<GlobalVarNode> = ArrayList()
         globalVars.forEach {
-            val info: OptimizationScope.ConstantInfo = scope.getValue(it.varNode.name)!!
-            if (info.lused == 0) {
-                if (!info.useInPropagation)
+            val constInfo: OptimizationScope.varInfo = constantScope.getValue(it.varNode.name)!!
+            if (constInfo.lused == 0) {
+                if (!constInfo.useInPropagation) {
                     changed = true
-                info.useInPropagation = true
+                    constInfo.useInPropagation = true
+                }
             }
-            if (info.rused > 0) {
+            constInfo.lused = 0
+            constInfo.rused = 0
+
+            val varInfo = variablesScope.getValue(it.varNode.name)!!
+            if (varInfo.rused > 0) {
                 newGlobalVars.add(it)
             } else {
                 changed = true
             }
-            info.lused = 0
-            info.rused = 0
+            varInfo.lused = 0
+            varInfo.rused = 0
         }
         globalVars = newGlobalVars
         return SimplifyResult(null, changed)
@@ -94,9 +103,9 @@ class ProgramNode(val functions: ArrayList<FunctionNode>, var globalVars: ArrayL
 
     fun simplify() {
         //global stays there during all iterations
-        val scope = OptimizationScope()
-
-        while (simplify(scope, false).changed) {
+        val constantsScope = OptimizationScope()
+        val variablessScope = OptimizationScope()
+        while (simplify(constantsScope, variablessScope, false).changed) {
         }
     }
 

@@ -28,19 +28,31 @@ class AssignmentNode(val name: String, var expr: ExprNode, ctx: ParserRuleContex
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-        val res = expr.simplify(scope, useGlobalVars)
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        expr.countLeftAndRightUsesOnly(constantScope, variablesScope)
+        variablesScope.getValue(name)!!.lused++
+        val constInfo = constantScope.getValue(name)
+        if (constInfo != null) {
+            constInfo.lused++
+        }
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        val res = expr.simplify(constantScope, variablesScope, useGlobalVars)
         if (res.newNode != null) {
             expr = res.newNode as ExprNode
         }
 
         if (expr is LiteralNode) {
-            scope.putIfNotExist(name, expr.type, (expr as LiteralNode).value)
+            constantScope.putIfNotExist(name, expr.type, (expr as LiteralNode).value)
+        } else {
+            constantScope.removeIfExist(name)
         }
-        val info = scope.getValue(name)
+        val info = constantScope.getValue(name)
         if (info != null) {
             info.lused++
         }
+        variablesScope.getValue(name)!!.lused++
         return SimplifyResult(null, res.changed)
     }
 

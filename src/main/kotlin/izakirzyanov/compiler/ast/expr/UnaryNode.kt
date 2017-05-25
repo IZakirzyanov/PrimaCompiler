@@ -38,10 +38,14 @@ class UnaryNode(val op: Op.UnOp, var expr: ExprNode, ctx: ParserRuleContext) : E
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        expr.countLeftAndRightUsesOnly(constantScope, variablesScope)
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         var newNode: ExprNode? = null
 
-        val res = expr.simplify(scope, useGlobalVars)
+        val res = expr.simplify(constantScope, variablesScope, useGlobalVars)
         if (res.newNode != null) {
             expr = res.newNode as ExprNode
         }

@@ -5,12 +5,12 @@ import java.util.*
 
 class OptimizationScope {
 
-    data class ConstantInfo(val value: Any, val type: Type, var lused: Int, var rused: Int, var useInPropagation: Boolean, var eliminated: Boolean)
+    data class varInfo(val value: Any?, val type: Type, var lused: Int, var rused: Int, var useInPropagation: Boolean)
 
-    private val scopesStack: ArrayList<MutableMap<String, ConstantInfo>> = ArrayList()
+    private val scopesStack: ArrayList<MutableMap<String, varInfo>> = ArrayList()
 
     init {
-        scopesStack.add(HashMap<String, ConstantInfo>())
+        scopesStack.add(HashMap<String, varInfo>())
     }
 
     fun beginNewScope() {
@@ -21,22 +21,32 @@ class OptimizationScope {
         scopesStack.removeAt(scopesStack.lastIndex)
     }
 
-    fun putIfNotExist(name: String, type: Type, value: Any) {
+    fun putIfNotExist(name: String, type: Type, value: Any?) {
         //global vars aren't used in propagation by default
         if (scopesStack.last()[name] == null) {
             if (scopesStack.size == 1) {
-                scopesStack.last()[name] = ConstantInfo(value, type, 0, 0, false, false)
+                scopesStack.last()[name] = varInfo(value, type, 0, 0, false)
             } else {
-                scopesStack.last()[name] = ConstantInfo(value, type, 0, 0, true, false)
+                scopesStack.last()[name] = varInfo(value, type, 0, 0, true)
             }
         }
     }
 
-    fun getValue(name: String) : ConstantInfo? {
+    fun removeIfExist(name: String) {
+        scopesStack.findLast { it.containsKey(name) }?.remove(name)
+    }
+
+    fun getValue(name: String) : varInfo? {
         return scopesStack.findLast { it.containsKey(name) }?.get(name)
     }
 
     fun isGlobal(name: String): Boolean {
         return scopesStack.findLast { it.containsKey(name) } == scopesStack.first()
+    }
+
+    fun removeAllUpdatedVars() {
+        for (scope in scopesStack) {
+            scope.entries.removeIf{e -> e.value.lused > 0}
+        }
     }
 }

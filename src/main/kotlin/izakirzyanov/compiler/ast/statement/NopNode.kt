@@ -14,7 +14,9 @@ class NopNode(ctx: ParserRuleContext) : StatementNode(ctx) {
         return emptyList()
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {}
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         return SimplifyResult(null, false)
     }
 

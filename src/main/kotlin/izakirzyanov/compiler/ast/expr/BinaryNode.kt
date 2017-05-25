@@ -73,15 +73,20 @@ class BinaryNode(val op: Op.BinOp, var left: ExprNode, var right: ExprNode, ctx:
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+    override fun countLeftAndRightUsesOnly(scope: OptimizationScope, variablesScope: OptimizationScope) {
+        left.countLeftAndRightUsesOnly(scope, variablesScope)
+        right.countLeftAndRightUsesOnly(scope, variablesScope)
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         var newNode: ExprNode? = null
 
-        val resL = left.simplify(scope, useGlobalVars)
+        val resL = left.simplify(constantScope, variablesScope, useGlobalVars)
         if (resL.newNode != null) {
             left = resL.newNode as ExprNode
         }
 
-        val resR = right.simplify(scope, useGlobalVars)
+        val resR = right.simplify(constantScope, variablesScope, useGlobalVars)
         if (resR.newNode != null) {
             right = resR.newNode as ExprNode
         }

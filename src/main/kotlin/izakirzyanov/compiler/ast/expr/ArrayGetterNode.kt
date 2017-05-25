@@ -30,12 +30,16 @@ class ArrayGetterNode(val name: String, var indices: List<ExprNode>, ctx: Parser
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+    override fun countLeftAndRightUsesOnly(scope: OptimizationScope, variablesScope: OptimizationScope) {
+        indices.forEach { it.countLeftAndRightUsesOnly(scope, variablesScope) }
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         val newIndices = ArrayList<ExprNode>()
         var changed = false
         var resIn: SimplifyResult
         indices.forEach {
-            resIn = it.simplify(scope, useGlobalVars)
+            resIn = it.simplify(constantScope,variablesScope, useGlobalVars)
             newIndices.add((resIn.newNode as? ExprNode) ?: it)
             changed = changed || resIn.changed
         }

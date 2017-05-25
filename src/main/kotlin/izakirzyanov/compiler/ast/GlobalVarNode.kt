@@ -12,9 +12,12 @@ class GlobalVarNode(val varNode: VarDeclarationNode, ctx: ParserRuleContext) : A
     override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
         return varNode.checkForErrorsAndInferType(scope, functionsList)
     }
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        varNode.countLeftAndRightUsesOnly(constantScope, variablesScope)
+    }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-        val res = varNode.simplify(scope, useGlobalVars)
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        val res = varNode.simplify(constantScope, variablesScope, useGlobalVars)
         assert(res.newNode == null)
         return SimplifyResult(null, res.changed)
     }

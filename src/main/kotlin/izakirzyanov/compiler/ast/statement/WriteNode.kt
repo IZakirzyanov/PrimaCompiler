@@ -26,10 +26,14 @@ class WriteNode(val nextLine: Boolean = true, var expr: ExprNode? = null, ctx: P
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        expr?.countLeftAndRightUsesOnly(constantScope, variablesScope)
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         val expr = expr
         if (expr != null) {
-            val res = expr.simplify(scope, useGlobalVars)
+            val res = expr.simplify(constantScope, variablesScope, useGlobalVars)
             if (res.newNode != null) {
                 this.expr = res.newNode as ExprNode
             }

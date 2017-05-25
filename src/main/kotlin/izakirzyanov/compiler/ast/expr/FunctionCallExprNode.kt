@@ -38,12 +38,16 @@ class FunctionCallExprNode(val name: String, var arguments: List<ExprNode>, ctx:
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        arguments.forEach { it.countLeftAndRightUsesOnly(constantScope, variablesScope) }
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
         val newArguments = ArrayList<ExprNode>()
         var res: SimplifyResult
         var changed = false
         arguments.forEach {
-            res = it.simplify(scope, useGlobalVars)
+            res = it.simplify(constantScope, variablesScope, useGlobalVars)
             newArguments.add((res.newNode as? ExprNode) ?: it)
             changed = changed || res.changed
         }

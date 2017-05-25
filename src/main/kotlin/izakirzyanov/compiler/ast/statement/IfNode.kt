@@ -31,8 +31,14 @@ class IfNode(var condition: ExprNode, var thenBlock: BlockNode, var elseBlock: B
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-        val resCond = condition.simplify(scope, useGlobalVars)
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        condition.countLeftAndRightUsesOnly(constantScope, variablesScope)
+        thenBlock.countLeftAndRightUsesOnly(constantScope, variablesScope)
+        elseBlock?.countLeftAndRightUsesOnly(constantScope, variablesScope)
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        val resCond = condition.simplify(constantScope, variablesScope, useGlobalVars)
         if (resCond.newNode != null) {
             condition = resCond.newNode as ExprNode
         }
@@ -40,12 +46,12 @@ class IfNode(var condition: ExprNode, var thenBlock: BlockNode, var elseBlock: B
         val condition = condition
         if (condition is LiteralNode.BoolLiteralNode) {
             if (condition.value as Boolean) {
-                val resThen = thenBlock.simplify(scope, useGlobalVars)
+                val resThen = thenBlock.simplify(constantScope, variablesScope, useGlobalVars)
                 return SimplifyResult(resThen.newNode ?: thenBlock, true)
             } else {
                 val elseBlock = elseBlock
                 if (elseBlock != null) {
-                    val resElse = elseBlock.simplify(scope, useGlobalVars)
+                    val resElse = elseBlock.simplify(constantScope, variablesScope, useGlobalVars)
                     return SimplifyResult(resElse.newNode ?: elseBlock, true)
                 } else {
                     return SimplifyResult(NopNode(ParserRuleContext()), true)
@@ -53,8 +59,8 @@ class IfNode(var condition: ExprNode, var thenBlock: BlockNode, var elseBlock: B
             }
         }
 
-        val resThen = thenBlock.simplify(scope, useGlobalVars)
-        val resElse = elseBlock?.simplify(scope, useGlobalVars)
+        val resThen = thenBlock.simplify(constantScope, variablesScope, useGlobalVars)
+        val resElse = elseBlock?.simplify(constantScope, variablesScope, useGlobalVars)
 
         if (resThen.newNode != null) {
             if ((resThen.newNode as BlockNode).statements.isEmpty()) {

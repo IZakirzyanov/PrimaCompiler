@@ -28,9 +28,16 @@ class WhileNode(var condition: ExprNode, var body: BlockNode, ctx: ParserRuleCon
         return errors
     }
 
-    override fun simplify(scope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
-        //new scope here
-        val resBody = body.simplify(OptimizationScope(), useGlobalVars)
+    override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
+        condition.countLeftAndRightUsesOnly(constantScope, variablesScope)
+        body.countLeftAndRightUsesOnly(constantScope, variablesScope)
+    }
+
+    override fun simplify(constantScope: OptimizationScope, variablesScope: OptimizationScope, useGlobalVars: Boolean): SimplifyResult {
+        countLeftAndRightUsesOnly(constantScope, variablesScope)
+        constantScope.removeAllUpdatedVars()
+        //new scopes here
+        val resBody = body.simplify(OptimizationScope(), variablesScope, useGlobalVars)
         if (resBody.newNode != null) {
             body = resBody.newNode as BlockNode
         }
