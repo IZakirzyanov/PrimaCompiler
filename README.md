@@ -1,5 +1,5 @@
 # Prima language Compiler
-##### v. 0.5
+##### v. 0.5.1
 
 ## Features
 
@@ -18,6 +18,7 @@
 - user-defined functions (without overloading)
 - JVM as target platform (JAVA class is generated)
 - constant folding and constant propagation optimizations
+- some dead code elimination optimization also
 
 ## Build
 The project can be built with gradle
@@ -31,7 +32,7 @@ Use `java [name]` to run it
 Primitive type variable's declaration syntax (all variables are mutable): `var N:T = EXPR`.
 All variables must be initialized in the declaration.
 
-Array variable's declaration syntax (all variables are mutable): `var N:T[] = T[size]`, where `T: Primitive | T[]`.
+Array variable's declaration syntax: `var N:T[] = T[size]`, where `T: Primitive | T[]`.
 Default value for an array of `int` is `0`, for array of `bool` is `false`. For an array
 of str default value is not set: if you try to get uninitialized value of such array
 it is undefined behavior (NPE from JVM actually :) ).
