@@ -70,7 +70,12 @@ sealed class VarDeclarationNode(val name: String, ctx: ParserRuleContext) : Stat
     class ArrayVarDeclarationNode(name: String, val type: Type.Arr<*>, val constructorPrimitiveType: Type, var sizes: List<ExprNode>, ctx: ParserRuleContext) : VarDeclarationNode(name, ctx) {
         override fun checkForErrorsAndInferType(scope: Scope, functionsList: HashMap<String, FunctionNode>): List<CompileError> {
             val errors = ArrayList<CompileError>()
-            sizes.forEach { errors.addAll(it.checkForErrorsAndInferType(scope, functionsList)) }
+            sizes.forEach {
+                errors.addAll(it.checkForErrorsAndInferType(scope, functionsList))
+                if (it.type != Type.Integer) {
+                    errors.add(CompileError.ArrayIndicesShouldBeInt(it.type, it.ctx.text, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
+                }
+            }
             if (scope.isReserved(name)) {
                 errors.add(CompileError.ReservedCanNotBeUsedAsName(name, ctx.getStart().line, ctx.getStart().charPositionInLine))
             }

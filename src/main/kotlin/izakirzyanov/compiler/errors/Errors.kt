@@ -70,6 +70,9 @@ sealed class CompileError(message: String, val line: Int, val column: Int) : Exc
     class VariableIsNotArray(name: String, type: Type, line: Int, column: Int) :
             CompileError("variable \"$name\" is not array, it has type \"$type\".", line, column)
 
+    class ArrayIndicesShouldBeInt(actual: Type, expr: String, line: Int, column: Int) :
+            CompileError("array index should have type \"int\" but actually has \"$actual\" type in \"$expr\".", line, column)
+
     class WriteIsNotDefinedForNonPrimitiveTypes(type: Type, line: Int, column: Int) :
             CompileError("write and writeln are defined only for primitive types but the argument has type \"$type\".", line, column)
 

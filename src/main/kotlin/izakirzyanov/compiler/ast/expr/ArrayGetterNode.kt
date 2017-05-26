@@ -26,6 +26,12 @@ class ArrayGetterNode(val name: String, var indices: List<ExprNode>, ctx: Parser
                 }
             }
         }
+        indices.forEach {
+            errors.addAll(it.checkForErrorsAndInferType(scope, functionsList))
+            if (it.type != Type.Integer) {
+                errors.add(CompileError.ArrayIndicesShouldBeInt(it.type, it.ctx.text, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
+            }
+        }
         type = (fullType as? Type.Arr<*>)?.getSubType(indices) ?: Type.Unknown
         return errors
     }

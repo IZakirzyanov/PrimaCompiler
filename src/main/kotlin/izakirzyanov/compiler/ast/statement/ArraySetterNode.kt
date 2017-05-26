@@ -35,6 +35,12 @@ class ArraySetterNode(val name: String, var indices: List<ExprNode>, var expr: E
                 }
             }
         }
+        indices.forEach {
+            errors.addAll(it.checkForErrorsAndInferType(scope, functionsList))
+            if (it.type != Type.Integer) {
+                errors.add(CompileError.ArrayIndicesShouldBeInt(it.type, it.ctx.text, it.ctx.getStart().line, it.ctx.getStart().charPositionInLine))
+            }
+        }
         return errors
     }
 
