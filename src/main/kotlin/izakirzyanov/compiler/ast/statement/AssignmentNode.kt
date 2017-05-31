@@ -30,7 +30,10 @@ class AssignmentNode(val name: String, var expr: ExprNode, ctx: ParserRuleContex
 
     override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
         expr.countLeftAndRightUsesOnly(constantScope, variablesScope)
-        variablesScope.getValue(name)!!.lused++
+        val info = variablesScope.getValue(name)
+        if (info != null) {
+            info.lused++
+        }
         val constInfo = constantScope.getValue(name)
         if (constInfo != null) {
             constInfo.lused++

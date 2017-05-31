@@ -22,7 +22,10 @@ class VariableNameNode(val name: String, ctx: ParserRuleContext) : ExprNode(ctx)
     }
 
     override fun countLeftAndRightUsesOnly(constantScope: OptimizationScope, variablesScope: OptimizationScope) {
-        variablesScope.getValue(name)!!.rused++
+        val info = variablesScope.getValue(name)
+        if (info != null) {
+            info.rused++
+        }
 
         val constInfo = constantScope.getValue(name)
         if (constInfo != null) {
